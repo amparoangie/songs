@@ -48,31 +48,55 @@ audioPlayer.addEventListener("ended", function(){
 
 }
 
-// LOAD SONGS
+// LOAD SONGS with debug
 async function loadSongs(){
-const files = document.getElementById("songUpload").files;
-if(files.length === 0){ alert("Please upload songs first."); return; }
+const fileInput = document.getElementById("songUpload");
+const files = fileInput.files;
+
+console.log("Files selected:", files);
+
+if(!files || files.length === 0){
+  alert("Please upload songs first.");
+  console.log("No files selected");
+  return;
+}
 
 songs = [];
 songDisplay.innerText = "loading songs...";
 
 for(let i=0;i<files.length;i++){
-let file = files[i];
-let cleanName = file.name.replace(/\.[^/.]+$/, "");
-let duration = await getAudioDuration(file);
-songs.push({ name: cleanName, url: URL.createObjectURL(file), duration: duration });
+  let file = files[i];
+  let cleanName = file.name.replace(/\.[^/.]+$/, "");
+
+  try {
+    let duration = await getAudioDuration(file);
+    songs.push({ name: cleanName, url: URL.createObjectURL(file), duration: duration });
+    console.log(`Loaded song: ${cleanName}, duration: ${duration}s`);
+  } catch(err){
+    console.error(`Failed to load song: ${file.name}`, err);
+  }
 }
 
-songDisplay.innerText = songs.length + " songs loaded";
+if(songs.length > 0){
+  songDisplay.innerText = songs.length + " songs loaded";
+} else {
+  songDisplay.innerText = "no valid songs loaded";
+  console.log("No songs successfully loaded");
+}
 }
 
 // GET AUDIO DURATION
 function getAudioDuration(file){
-return new Promise((resolve)=>{
+return new Promise((resolve, reject)=>{
 let audio = document.createElement("audio");
 audio.src = URL.createObjectURL(file);
+
 audio.addEventListener("loadedmetadata", function(){
-resolve(audio.duration);
+  resolve(audio.duration);
+});
+
+audio.addEventListener("error", function(e){
+  reject(e);
 });
 });
 }
