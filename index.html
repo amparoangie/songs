@@ -4,7 +4,7 @@
 <head>
 
 <meta charset="UTF-8">
-<title>amparo</title>
+<title>practice</title>
 
 <link rel="icon" href="favicon.ico">
 
@@ -18,6 +18,14 @@ background:#111;
 color:#f5f5f7;
 text-align:center;
 margin:40px;
+transition:0.3s;
+}
+
+/* ---------- LIGHT MODE ---------- */
+
+body.light{
+background:#f5f5f7;
+color:#111;
 }
 
 /* ---------- CONTAINER ---------- */
@@ -29,6 +37,31 @@ background:#1c1c1e;
 padding:40px;
 border-radius:16px;
 box-shadow:0 0 20px rgba(0,0,0,.4);
+transition:0.3s;
+}
+
+body.light .container{
+background:white;
+}
+
+/* ---------- DARK MODE TOGGLE ---------- */
+
+#darkToggle{
+position:absolute;
+top:20px;
+left:20px;
+font-size:18px;
+padding:6px 10px;
+border-radius:8px;
+border:none;
+background:#2c2c2e;
+color:white;
+cursor:pointer;
+}
+
+body.light #darkToggle{
+background:#ddd;
+color:black;
 }
 
 /* ---------- GROUP SPACING ---------- */
@@ -48,6 +81,13 @@ color:white;
 margin-top:6px;
 }
 
+body.light select,
+body.light input{
+background:white;
+color:black;
+border:1px solid #ccc;
+}
+
 /* ---------- BUTTONS ---------- */
 
 button{
@@ -63,6 +103,12 @@ font-size:14px;
 
 button:hover{
 background:#3a3a3c;
+}
+
+body.light button{
+background:#eee;
+color:black;
+border:1px solid #ccc;
 }
 
 /* ---------- PRIMARY BUTTON ---------- */
@@ -150,16 +196,17 @@ padding:4px 0;
 
 </head>
 
-
 <body>
+
+<button id="darkToggle">🌙</button>
 
 <div class="container">
 
-<h1>amparo</h1>
+<h1>practice</h1>
 
 <div class="control-group">
 
-<label>practice time</label><br>
+<label>session time</label><br>
 
 <select id="timeSelect">
 <option value="60">1 hour</option>
@@ -221,5 +268,4 @@ show setlist
 <script src="script.js"></script>
 
 </body>
-
 </html>
