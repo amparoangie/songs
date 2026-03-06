@@ -171,7 +171,7 @@ function playSongWithCountdown(){
   }
   const song = sessionPlaylist[currentSongIndex];
   songDisplay.innerText = song.name;
-  let countdown = 3;
+  let countdown = 5;
   countdownDisplay.innerText = countdown;
   const interval = setInterval(()=>{
     countdown--;
