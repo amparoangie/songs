@@ -1,103 +1,168 @@
-// script.js
+let songs = [];
+let practiceSet = [];
+let currentIndex = 0;
+let timeLimit = 0;
+let sessionInterval;
 
-let songs = [];        // all uploaded songs
-let practiceSet = [];  // current practice session
-let currentIndex = 0;  // index of current song
-let timeLimit = 0;     // in minutes
 
-// Load user-uploaded songs
-function loadSongs() {
-    const files = document.getElementById("songUpload").files;
-    songs = [];
-    let loadedCount = 0;
+// LOAD SONGS
+function loadSongs(){
 
-    if (files.length === 0) {
-        alert("No files selected.");
-        return;
-    }
+const files = document.getElementById("songUpload").files;
 
-    // Wait for metadata to load to get duration
-    for (let file of files) {
-        let audio = new Audio();
-        audio.src = URL.createObjectURL(file);
+songs = [];
 
-        audio.addEventListener("loadedmetadata", function () {
-            songs.push({
-                title: file.name,
-                duration: Math.ceil(audio.duration / 60), // duration in minutes
-                file: file
-            });
+let loaded = 0;
 
-            loadedCount++;
-            if (loadedCount === files.length) {
-                alert(`All ${songs.length} songs loaded!`);
-                document.getElementById("songDisplay").innerText = "Ready to start practice!";
-            }
-        });
-    }
+for(let file of files){
+
+let audio = new Audio();
+audio.src = URL.createObjectURL(file);
+
+audio.addEventListener("loadedmetadata",function(){
+
+songs.push({
+title:file.name,
+duration:Math.ceil(audio.duration/60),
+file:file
+});
+
+loaded++;
+
+if(loaded === files.length){
+alert(songs.length + " songs loaded!");
+document.getElementById("songDisplay").innerText="Ready to start practice!";
 }
 
-// Simple shuffle function
-function shuffle(array) {
-    return array.sort(() => Math.random() - 0.5);
+});
+
 }
 
-// Start practice session
-function startPractice() {
-    if (songs.length === 0) {
-        alert("Please upload songs first.");
-        return;
-    }
-
-    timeLimit = parseInt(document.getElementById("timeSelect").value);
-
-    let shuffled = shuffle([...songs]);
-    let totalTime = 0;
-    practiceSet = [];
-
-    for (let song of shuffled) {
-        if (totalTime + song.duration <= timeLimit) {
-            practiceSet.push(song);
-            totalTime += song.duration;
-        }
-    }
-
-    currentIndex = 0;
-    nextSong();
 }
 
-// Show next song with countdown and play audio
-function nextSong() {
-    if (currentIndex >= practiceSet.length) {
-        document.getElementById("songDisplay").innerText = "Practice Finished!";
-        const audioPlayer = document.getElementById("audioPlayer");
-        audioPlayer.pause();
-        audioPlayer.src = "";
-        document.getElementById("countdown").innerText = "";
-        return;
-    }
 
-    const song = practiceSet[currentIndex];
-    document.getElementById("songDisplay").innerText = "Next Request: " + song.title;
-    const countdownDiv = document.getElementById("countdown");
-    countdownDiv.innerText = "3"; // start countdown
+// SHUFFLE SONGS
+function shuffle(array){
+return array.sort(()=>Math.random()-0.5);
+}
 
-    let count = 3;
-    const interval = setInterval(() => {
-        count--;
-        if (count > 0) {
-            countdownDiv.innerText = count;
-        } else {
-            clearInterval(interval);
-            countdownDiv.innerText = "";
-            // play the song
-            const audioPlayer = document.getElementById("audioPlayer");
-            audioPlayer.src = URL.createObjectURL(song.file);
-            audioPlayer.play().catch(err => {
-                console.log("Autoplay prevented. Click play to start.", err);
-            });
-        }
-    }, 1000);
 
-    currentIndex++;
+// START PRACTICE
+function startPractice(){
+
+if(songs.length === 0){
+alert("Upload songs first");
+return;
+}
+
+timeLimit = parseInt(document.getElementById("timeSelect").value);
+
+let shuffled = shuffle([...songs]);
+
+let totalTime = 0;
+
+practiceSet = [];
+
+for(let song of shuffled){
+
+if(totalTime + song.duration <= timeLimit){
+
+practiceSet.push(song);
+totalTime += song.duration;
+
+}
+
+}
+
+currentIndex = 0;
+
+startSessionTimer();
+
+nextSong();
+
+}
+
+
+// SESSION TIMER
+function startSessionTimer(){
+
+let remainingSeconds = timeLimit * 60;
+
+const timer = document.getElementById("sessionTimer");
+
+sessionInterval = setInterval(()=>{
+
+let minutes = Math.floor(remainingSeconds/60);
+let seconds = remainingSeconds%60;
+
+timer.innerText =
+"Session Time Left: " +
+minutes.toString().padStart(2,"0") +
+":" +
+seconds.toString().padStart(2,"0");
+
+remainingSeconds--;
+
+if(remainingSeconds < 0){
+
+clearInterval(sessionInterval);
+
+timer.innerText="Session Finished!";
+
+}
+
+},1000);
+
+}
+
+
+// NEXT SONG
+function nextSong(){
+
+if(currentIndex >= practiceSet.length){
+
+document.getElementById("songDisplay").innerText="Practice Finished!";
+
+document.getElementById("countdown").innerText="";
+
+return;
+
+}
+
+let song = practiceSet[currentIndex];
+
+document.getElementById("songDisplay").innerText="Next Request: " + song.title;
+
+let countdown = document.getElementById("countdown");
+
+let audioPlayer = document.getElementById("audioPlayer");
+
+let count = 3;
+
+countdown.innerText = count;
+
+let interval = setInterval(()=>{
+
+count--;
+
+if(count>0){
+
+countdown.innerText = count;
+
+}else{
+
+clearInterval(interval);
+
+countdown.innerText="";
+
+audioPlayer.src = URL.createObjectURL(song.file);
+
+audioPlayer.play().catch(()=>{});
+
+}
+
+},1000);
+
+currentIndex++;
+
 }
