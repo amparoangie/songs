@@ -3,232 +3,247 @@
 
 <head>
 <meta charset="UTF-8">
-<title>session</title>
+<title>amparo</title>
 
 <style>
-:root {
-  --bg: #f5f5f7;
-  --text: #1d1d1f;
-  --secondary: #6e6e73;
-  --button: #ffffff;
-  --border: #d2d2d7;
-  --accent: #ff3b30;
+
+/* ---------- DESIGN VARIABLES ---------- */
+
+:root{
+--bg:#f5f5f7;
+--card:#ffffff;
+--text:#1d1d1f;
+--secondary:#6e6e73;
+--border:#d2d2d7;
+--accent:#ff3b30;
 }
 
-body.dark {
-  --bg: #1c1c1e;
-  --text: #f5f5f7;
-  --secondary: #a1a1a6;
-  --button: #2c2c2e;
-  --border: #3a3a3c;
-  --accent: #ff453a;
+body.dark{
+--bg:#1c1c1e;
+--card:#2c2c2e;
+--text:#f5f5f7;
+--secondary:#a1a1a6;
+--border:#3a3a3c;
+--accent:#ff453a;
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  text-align: center;
-  margin: 0;
-  padding: 40px;
-  transition: background .3s, color .3s;
-  text-transform: lowercase;
+/* ---------- BODY ---------- */
+
+body{
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+background:var(--bg);
+color:var(--text);
+margin:0;
+padding:40px 20px;
+display:flex;
+justify-content:center;
+text-transform:lowercase;
+transition:background .3s,color .3s;
 }
 
-h1, h2, h3, label {
-  font-family: inherit;
-  font-weight: 400;
-  text-transform: lowercase;
+/* ---------- MAIN CARD ---------- */
+
+.app{
+width:100%;
+max-width:420px;
+background:var(--card);
+padding:36px;
+border-radius:20px;
+box-shadow:0 10px 30px rgba(0,0,0,.08);
+text-align:center;
 }
 
-.container {
-  max-width: 400px;
-  margin: auto;
-  text-align: center;
+/* ---------- TITLE ---------- */
+
+h1{
+font-weight:500;
+font-size:26px;
+margin-bottom:30px;
 }
 
-#darkModeToggle {
-  position: fixed;
-  top: 15px;
-  left: 15px;
-  padding: 8px 12px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: var(--button);
-  cursor: pointer;
-  transition: all .2s;
-  z-index: 1000;
-  font-size: 14px;
-}
-#darkModeToggle:hover {
-  background: #f2f2f2;
-  transform: translateY(-1px);
+/* ---------- INPUT SECTIONS ---------- */
+
+.section{
+margin-bottom:22px;
 }
 
-.labelText {
-  display: block;
-  font-size: 14px;
-  margin-bottom: 8px;
+label{
+display:block;
+font-size:13px;
+color:var(--secondary);
+margin-bottom:6px;
 }
 
-.inputRow {
-  margin-bottom: 16px;
-  text-align: center;
+select,
+input[type=file]{
+width:100%;
+padding:8px 10px;
+border-radius:10px;
+border:1px solid var(--border);
+background:transparent;
+font-size:13px;
+font-family:inherit;
 }
 
-select, input[type="file"] {
-  display: inline-block;
-  width: auto;
-  min-width: 140px;
-  padding: 6px 10px;
-  font-size: 13px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--button);
-  color: var(--text);
-  font-family: inherit;
-  cursor: pointer;
-  outline: none;
-  transition: border-color .2s, box-shadow .2s;
-}
-select:focus, input[type="file"]:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(255,59,48,0.2);
+/* ---------- BUTTONS ---------- */
+
+.buttons{
+margin-top:12px;
 }
 
-button {
-  font-family: inherit;
-  background: var(--button);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 6px 12px;
-  font-size: 13px;
-  cursor: pointer;
-  margin: 4px;
-  color: var(--text);
-  transition: all .2s;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+button{
+padding:7px 14px;
+border-radius:12px;
+border:1px solid var(--border);
+background:transparent;
+font-family:inherit;
+font-size:13px;
+cursor:pointer;
+margin:4px;
+transition:.2s;
 }
 
-#songDisplay {
-  font-size: 28px;
-  margin-top: 20px;
-  font-weight: 400;
+button:hover{
+transform:translateY(-1px);
+box-shadow:0 2px 6px rgba(0,0,0,.15);
 }
 
-#countdown {
-  font-size: 64px;
-  color: var(--accent);
-  margin-top: 10px;
+/* ---------- SONG DISPLAY ---------- */
+
+#songDisplay{
+font-size:24px;
+margin-top:25px;
 }
 
-#sessionTimer {
-  font-size: 16px;
-  color: var(--secondary);
-  margin-top: 10px;
+#countdown{
+font-size:64px;
+color:var(--accent);
+margin-top:6px;
 }
 
-#setlist {
-  margin-top: 20px;
-  text-align: left;
-  font-size: 14px;
-  max-height: 200px;
-  overflow: auto;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 10px;
-  background: var(--button);
-  display: none;
+/* ---------- SESSION TIMER ---------- */
+
+#sessionTimer{
+font-size:14px;
+color:var(--secondary);
+margin-top:10px;
 }
 
-audio {
-  margin-top: 20px;
-  width: 100%;
-  border-radius: 10px;
+/* ---------- AUDIO ---------- */
+
+audio{
+margin-top:18px;
+width:100%;
 }
 
-#songProgressContainer {
-  width: 100%;
-  height: 8px;
-  background: var(--border);
-  border-radius: 4px;
-  margin-top: 10px;
-  overflow: hidden;
-  cursor: pointer;
+/* ---------- PROGRESS BAR ---------- */
+
+#songProgressContainer{
+width:100%;
+height:6px;
+background:var(--border);
+border-radius:3px;
+margin-top:10px;
+overflow:hidden;
 }
 
-#songProgress {
-  height: 100%;
-  width: 0%;
-  background: var(--accent);
-  transition: width 0.1s linear;
+#songProgress{
+height:100%;
+width:0%;
+background:var(--accent);
 }
 
-.loader {
-  border: 6px solid var(--border);
-  border-top: 6px solid var(--accent);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  margin: 20px auto;
-  animation: spin 1s linear infinite;
-  display: none;
-}
-@keyframes spin {
-  0% { transform: rotate(0deg);}
-  100% { transform: rotate(360deg);}
+/* ---------- SETLIST ---------- */
+
+#setlist{
+margin-top:20px;
+font-size:13px;
+text-align:left;
+border:1px solid var(--border);
+border-radius:12px;
+padding:10px;
+max-height:180px;
+overflow:auto;
+display:none;
 }
 
-.optionRow {
-  margin-top: 10px;
-  font-size: 14px;
-  color: var(--secondary);
+/* ---------- LOADER ---------- */
+
+.loader{
+border:5px solid var(--border);
+border-top:5px solid var(--accent);
+border-radius:50%;
+width:32px;
+height:32px;
+margin:18px auto;
+animation:spin 1s linear infinite;
+display:none;
 }
+
+@keyframes spin{
+0%{transform:rotate(0deg)}
+100%{transform:rotate(360deg)}
+}
+
+/* ---------- DARK MODE BUTTON ---------- */
+
+#darkToggle{
+position:fixed;
+top:14px;
+left:14px;
+border:none;
+background:transparent;
+font-size:18px;
+cursor:pointer;
+}
+
 </style>
 </head>
 
 <body>
 
-<button id="darkModeToggle" onclick="toggleDarkMode()">🌙</button>
+<button id="darkToggle" onclick="toggleDark()">☀️</button>
 
-<div class="container">
+<div class="app">
 
-<h1>practice session</h1>
+<h1>amparo</h1>
 
-<div class="inputRow">
-  <label class="labelText">practice time</label>
-  <select id="timeSelect">
-    <option value="60">1 hour</option>
-    <option value="120">2 hours</option>
-    <option value="180">3 hours</option>
-  </select>
+<div class="section">
+<label>practice time</label>
+<select id="timeSelect">
+<option value="60">1 hour</option>
+<option value="120">2 hours</option>
+<option value="180">3 hours</option>
+</select>
 </div>
 
-<div class="inputRow">
-  <label class="labelText">countdown before song</label>
-  <select id="countdownSelect">
-    <option value="3">3 seconds</option>
-    <option value="5" selected>5 seconds</option>
-    <option value="10">10 seconds</option>
-  </select>
+<div class="section">
+<label>countdown</label>
+<select id="countdownSelect">
+<option value="3">3 seconds</option>
+<option value="5" selected>5 seconds</option>
+<option value="10">10 seconds</option>
+</select>
 </div>
 
-<div class="inputRow">
-  <input type="file" id="songUpload" multiple accept="audio/*">
+<div class="section">
+<label>upload songs</label>
+<input type="file" id="songUpload" multiple accept="audio/*">
 </div>
 
+<div class="buttons">
 <button onclick="loadSongs()">load songs</button>
 <button onclick="startPractice()">start practice</button>
+<button onclick="nextSong()">next song</button>
+</div>
 
-<div class="optionRow">
+<div style="margin-top:14px;font-size:13px;color:var(--secondary)">
 <label>
-<input type="checkbox" id="showSetlist"> show generated setlist
+<input type="checkbox" id="showSetlist"> show setlist
 </label>
 </div>
+
+<div id="loader" class="loader"></div>
 
 <h3 id="sessionTimer">session time left: --:--</h3>
 
@@ -239,12 +254,8 @@ audio {
 <audio id="audioPlayer" controls></audio>
 
 <div id="songProgressContainer">
-  <div id="songProgress"></div>
+<div id="songProgress"></div>
 </div>
-
-<div id="loader" class="loader"></div>
-
-<button onclick="nextSong()">next song</button>
 
 <div id="setlist"></div>
 
@@ -253,15 +264,20 @@ audio {
 <script src="script.js"></script>
 
 <script>
-function toggleDarkMode() {
-  const btn = document.getElementById("darkModeToggle");
-  document.body.classList.toggle("dark");
-  btn.innerText = document.body.classList.contains("dark") ? "☀️" : "🌙";
+
+function toggleDark(){
+document.body.classList.toggle("dark")
+
+const btn=document.getElementById("darkToggle")
+
+btn.innerText=document.body.classList.contains("dark") ? "☀️":"🌙"
 }
 
-// start in dark mode automatically
-document.body.classList.add("dark");
-document.getElementById("darkModeToggle").innerText = "☀️";
+/* start in dark mode */
+
+document.body.classList.add("dark")
+document.getElementById("darkToggle").innerText="☀️"
+
 </script>
 
 </body>
