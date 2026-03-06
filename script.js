@@ -1,24 +1,43 @@
 let songs=[]
-let shuffledSongs=[]
+let shuffled=[]
 let currentIndex=0
 
 let audio=document.getElementById("audioPlayer")
+let songDisplay=document.getElementById("songDisplay")
+let countdownDisplay=document.getElementById("countdown")
+let sessionTimer=document.getElementById("sessionTimer")
+let progress=document.getElementById("songProgress")
 
+let countdownLength=3
 let sessionSeconds=0
 let sessionInterval
 
+/* DARK MODE TOGGLE */
+
+window.addEventListener("DOMContentLoaded",()=>{
+
+let toggle=document.getElementById("darkToggle")
+
+toggle.addEventListener("click",()=>{
+
+document.body.classList.toggle("light")
+
+toggle.innerText=
+document.body.classList.contains("light")
+? "☀️"
+: "🌙"
+
+})
+
+})
 
 /* LOAD SONGS */
 
 function loadSongs(){
 
-const files=document.getElementById("songUpload").files
-const loader=document.getElementById("loader")
-
-if(files.length===0){
-alert("please upload songs")
-return
-}
+let loader=document.getElementById("loader")
+let fileInput=document.getElementById("songUpload")
+let files=fileInput.files
 
 songs=[]
 loader.style.display="block"
@@ -27,49 +46,63 @@ setTimeout(()=>{
 
 for(let file of files){
 
+let url=URL.createObjectURL(file)
+
 songs.push({
 name:file.name.replace(/\.[^/.]+$/,""),
-file:file
+url:url
 })
 
 }
 
 loader.style.display="none"
 
-document.getElementById("songDisplay").innerText=
-songs.length+" songs loaded"
+songDisplay.innerText=songs.length+" songs loaded"
 
-if(document.getElementById("showSetlist").checked){
-displaySetlist()
-}
+prepareSetlist()
 
-},400)
+},500)
 
 }
 
+/* SHUFFLE */
 
-/* SHUFFLE SONGS */
+function shuffle(array){
 
-function shuffleSongs(){
-
-shuffledSongs=[...songs]
-
-for(let i=shuffledSongs.length-1;i>0;i--){
+for(let i=array.length-1;i>0;i--){
 
 let j=Math.floor(Math.random()*(i+1))
-
-let temp=shuffledSongs[i]
-shuffledSongs[i]=shuffledSongs[j]
-shuffledSongs[j]=temp
+[array[i],array[j]]=[array[j],array[i]]
 
 }
 
+return array
+
+}
+
+/* SETLIST */
+
+function prepareSetlist(){
+
+shuffled=shuffle([...songs])
 currentIndex=0
 
+let list=document.getElementById("setlist")
+list.innerHTML=""
+
+if(document.getElementById("showSetlist").checked){
+
+shuffled.forEach(song=>{
+let li=document.createElement("li")
+li.innerText=song.name
+list.appendChild(li)
+})
+
 }
 
+}
 
-/* START PRACTICE */
+/* START SESSION */
 
 function startPractice(){
 
@@ -78,137 +111,117 @@ alert("load songs first")
 return
 }
 
-shuffleSongs()
+countdownLength=
+parseInt(document.getElementById("countdownSelect").value)
 
-let hours=document.getElementById("timeSelect").value
+let minutes=
+parseInt(document.getElementById("timeSelect").value)
 
-sessionSeconds=hours*60
+sessionSeconds=minutes*60
 
-updateSessionTimer()
+startSessionTimer()
+
+playNext()
+
+}
+
+/* SESSION TIMER */
+
+function startSessionTimer(){
 
 sessionInterval=setInterval(()=>{
 
 sessionSeconds--
 
-updateSessionTimer()
+let min=Math.floor(sessionSeconds/60)
+let sec=sessionSeconds%60
+
+sessionTimer.innerText=
+"session time left: "+min+":"+String(sec).padStart(2,"0")
 
 if(sessionSeconds<=0){
+
 clearInterval(sessionInterval)
-}
-
-},1000)
-
-playSong()
-
-}
-
-
-/* PLAY SONG */
-
-function playSong(){
-
-let song=shuffledSongs[currentIndex]
-
-document.getElementById("songDisplay").innerText=song.name
-
-let countdownTime=parseInt(
-document.getElementById("countdownSelect").value
-)
-
-let countdown=document.getElementById("countdown")
-
-countdown.innerText=countdownTime
-
-let interval=setInterval(()=>{
-
-countdownTime--
-
-countdown.innerText=countdownTime
-
-if(countdownTime===0){
-
-clearInterval(interval)
-
-countdown.innerText=""
-
-audio.src=URL.createObjectURL(song.file)
-
-audio.play()
+audio.pause()
+songDisplay.innerText="session finished"
 
 }
 
 },1000)
 
 }
-
 
 /* NEXT SONG */
 
-function nextSong(){
+function playNext(){
+
+if(currentIndex>=shuffled.length){
+
+shuffled=shuffle([...songs])
+currentIndex=0
+
+}
+
+let song=shuffled[currentIndex]
+
+songDisplay.innerText=song.name
+
+startCountdown(song)
 
 currentIndex++
 
-if(currentIndex>=shuffledSongs.length){
+}
 
-shuffleSongs()
+/* COUNTDOWN */
+
+function startCountdown(song){
+
+let time=countdownLength
+
+countdownDisplay.innerText=time
+
+let interval=setInterval(()=>{
+
+time--
+
+if(time<=0){
+
+clearInterval(interval)
+countdownDisplay.innerText=""
+
+audio.src=song.url
+audio.play()
+
+}else{
+
+countdownDisplay.innerText=time
 
 }
 
-playSong()
+},1000)
 
 }
-
 
 /* AUTO NEXT */
 
 audio.addEventListener("ended",()=>{
-nextSong()
+playNext()
 })
 
+/* NEXT BUTTON */
 
-/* SESSION TIMER */
+function nextSong(){
 
-function updateSessionTimer(){
-
-let minutes=Math.floor(sessionSeconds/60)
-let seconds=sessionSeconds%60
-
-document.getElementById("sessionTimer").innerText=
-"session time left: "+
-String(minutes).padStart(2,'0')+
-":"+
-String(seconds).padStart(2,'0')
+audio.pause()
+playNext()
 
 }
 
-
-/* SETLIST */
-
-function displaySetlist(){
-
-let list=document.getElementById("setlist")
-
-list.innerHTML=""
-
-songs.forEach(song=>{
-
-let li=document.createElement("li")
-
-li.innerText=song.name
-
-list.appendChild(li)
-
-})
-
-}
-
-
-/* SONG PROGRESS BAR */
+/* SONG PROGRESS */
 
 audio.addEventListener("timeupdate",()=>{
 
-let progress=(audio.currentTime/audio.duration)*100
-
-document.getElementById("songProgress").value=progress
+let percent=(audio.currentTime/audio.duration)*100
+progress.value=percent
 
 })
