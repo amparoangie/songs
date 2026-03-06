@@ -21,7 +21,7 @@ function loadSongs() {
         let audio = new Audio();
         audio.src = URL.createObjectURL(file);
 
-        audio.addEventListener("loadedmetadata", function() {
+        audio.addEventListener("loadedmetadata", function () {
             songs.push({
                 title: file.name,
                 duration: Math.ceil(audio.duration / 60), // duration in minutes
@@ -66,24 +66,38 @@ function startPractice() {
     nextSong();
 }
 
-// Show next song and play audio
+// Show next song with countdown and play audio
 function nextSong() {
     if (currentIndex >= practiceSet.length) {
         document.getElementById("songDisplay").innerText = "Practice Finished!";
         const audioPlayer = document.getElementById("audioPlayer");
         audioPlayer.pause();
         audioPlayer.src = "";
+        document.getElementById("countdown").innerText = "";
         return;
     }
 
     const song = practiceSet[currentIndex];
     document.getElementById("songDisplay").innerText = "Next Request: " + song.title;
+    const countdownDiv = document.getElementById("countdown");
+    countdownDiv.innerText = "3"; // start countdown
 
-    const audioPlayer = document.getElementById("audioPlayer");
-    audioPlayer.src = URL.createObjectURL(song.file);
-    audioPlayer.play().catch(err => {
-        console.log("Autoplay prevented. Click play to start.", err);
-    });
+    let count = 3;
+    const interval = setInterval(() => {
+        count--;
+        if (count > 0) {
+            countdownDiv.innerText = count;
+        } else {
+            clearInterval(interval);
+            countdownDiv.innerText = "";
+            // play the song
+            const audioPlayer = document.getElementById("audioPlayer");
+            audioPlayer.src = URL.createObjectURL(song.file);
+            audioPlayer.play().catch(err => {
+                console.log("Autoplay prevented. Click play to start.", err);
+            });
+        }
+    }, 1000);
 
     currentIndex++;
 }
