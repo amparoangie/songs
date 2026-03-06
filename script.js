@@ -22,6 +22,7 @@ sessionTimerDisplay = document.getElementById("sessionTimer");
 progressBar = document.getElementById("songProgress");
 setlistDiv = document.getElementById("setlist");
 showSetlistCheckbox = document.getElementById("showSetlist");
+loadProgressBar = document.getElementById("loadProgress");
 
 // Update progress bar
 audioPlayer.addEventListener("timeupdate", () => {
@@ -48,7 +49,7 @@ audioPlayer.addEventListener("ended", function(){
 
 }
 
-// LOAD SONGS with debug
+// LOAD SONGS with loading progress
 async function loadSongs(){
 const fileInput = document.getElementById("songUpload");
 const files = fileInput.files;
@@ -63,6 +64,10 @@ if(!files || files.length === 0){
 
 songs = [];
 songDisplay.innerText = "loading songs...";
+loadProgressBar.style.width = "0%"; // reset
+
+let loadedCount = 0;
+const totalFiles = files.length;
 
 for(let i=0;i<files.length;i++){
   let file = files[i];
@@ -71,7 +76,10 @@ for(let i=0;i<files.length;i++){
   try {
     let duration = await getAudioDuration(file);
     songs.push({ name: cleanName, url: URL.createObjectURL(file), duration: duration });
-    console.log(`Loaded song: ${cleanName}, duration: ${duration}s`);
+    loadedCount++;
+    const percent = Math.round((loadedCount / totalFiles) * 100);
+    loadProgressBar.style.width = percent + "%";
+    console.log(`Loaded song: ${cleanName}, ${percent}%`);
   } catch(err){
     console.error(`Failed to load song: ${file.name}`, err);
   }
