@@ -80,7 +80,7 @@ async function loadSongs() {
   }
 
   loader.style.display = "none"; // hide spinner when done
-  songDisplay.innerText = songs.length > 0 ? songs.length + " songs loaded" : "no valid songs loaded";
+  songDisplay.innerText = songs.length > 0 ? songs.length + " songs loaded" : "No valid songs loaded";
 }
 
 // GET AUDIO DURATION
@@ -131,7 +131,7 @@ function buildSessionPlaylist(){
   // Show setlist if checkbox enabled
   if(showSetlistCheckbox.checked){
     setlistDiv.style.display = "block";
-    setlistDiv.innerHTML = "<strong>setlist</strong><br><br>";
+    setlistDiv.innerHTML = "<strong>Setlist</strong><br><br>";
     sessionPlaylist.forEach((song,i)=>{
       setlistDiv.innerHTML += (i+1)+". "+song.name+"<br>";
     });
@@ -150,12 +150,12 @@ function startSessionTimer(){
     sessionTimeRemaining--;
     const mins = Math.floor(sessionTimeRemaining/60);
     const secs = sessionTimeRemaining%60;
-    sessionTimerDisplay.innerText = "session time left: "+ mins + ":" + secs.toString().padStart(2,'0');
+    sessionTimerDisplay.innerText = "Session Time Left: "+ mins + ":" + secs.toString().padStart(2,'0');
 
     if(sessionTimeRemaining <= 0){
       clearInterval(sessionInterval);
       audioPlayer.pause();
-      songDisplay.innerText = "practice finished";
+      songDisplay.innerText = "Practice Finished";
       countdownDisplay.innerText = "";
       progressBar.style.width = "0%";
     }
@@ -165,7 +165,7 @@ function startSessionTimer(){
 // PLAY SONG WITH COUNTDOWN
 function playSongWithCountdown(){
   if(currentSongIndex >= sessionPlaylist.length){
-    songDisplay.innerText = "setlist complete";
+    songDisplay.innerText = "Setlist Complete";
     progressBar.style.width = "0%";
     return;
   }
