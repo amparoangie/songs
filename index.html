@@ -1,40 +1,61 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-<title>Mariachi Gig Practice</title>
+    <meta charset="UTF-8">
+    <title>Mariachi Gig Practice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 40px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        #songDisplay {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+
+        #countdown {
+            font-size: 48px;
+            color: darkred;
+            margin: 10px 0;
+        }
+    </style>
 </head>
 
 <body>
+    <h1>Mariachi Gig Practice Trainer</h1>
 
-<h1>Gig Practice Trainer</h1>
+    <label for="timeSelect">Select Practice Time:</label>
+    <select id="timeSelect">
+        <option value="60">1 Hour</option>
+        <option value="120">2 Hours</option>
+        <option value="180">3 Hours</option>
+    </select>
 
-<label>Practice Time</label>
+    <br><br>
 
-<select id="timeSelect">
-<option value="60">1 Hour</option>
-<option value="120">2 Hours</option>
-<option value="180">3 Hours</option>
-</select>
+    <input type="file" id="songUpload" multiple accept="audio/*">
 
-<br><br>
+    <br><br>
 
-<input type="file" id="songUpload" multiple accept="audio/*">
+    <button onclick="loadSongs()">Load Songs</button>
+    <button onclick="startPractice()">Start Practice</button>
 
-<br><br>
+    <h2 id="songDisplay">Upload songs to begin</h2>
+    <div id="countdown"></div>
 
-<button onclick="loadSongs()">Load Songs</button>
-<button onclick="startPractice()">Start Practice</button>
+    <audio id="audioPlayer" controls></audio>
 
-<h2 id="songDisplay">Upload songs to begin</h2>
-  <audio id="audioPlayer" controls></audio>
+    <br><br>
+    <button onclick="nextSong()">Next Song</button>
 
-<br><br>
-
-<button onclick="nextSong()">Next Song</button>
-
-<script src="script.js"></script>
-
+    <script src="script.js"></script>
 </body>
 
 </html>
