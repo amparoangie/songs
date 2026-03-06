@@ -165,4 +165,10 @@ audioPlayer.play().catch(()=>{});
 
 currentIndex++;
 
+  const audioPlayer = document.getElementById("audioPlayer");
+
+audioPlayer.addEventListener("ended", function() {
+    nextSong();
+});
+  
 }
