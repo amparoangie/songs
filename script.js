@@ -7,6 +7,7 @@ let audio=document.getElementById("audioPlayer")
 let sessionSeconds=0
 let sessionInterval
 
+
 /* LOAD SONGS */
 
 function loadSongs(){
@@ -38,8 +39,6 @@ loader.style.display="none"
 document.getElementById("songDisplay").innerText=
 songs.length+" songs loaded"
 
-saveSongNames()
-
 if(document.getElementById("showSetlist").checked){
 displaySetlist()
 }
@@ -48,41 +47,8 @@ displaySetlist()
 
 }
 
-/* SAVE SONG NAMES */
 
-function saveSongNames(){
-
-let names=songs.map(song=>song.name)
-
-localStorage.setItem("songNames",JSON.stringify(names))
-
-}
-
-/* RESTORE SONG LIST */
-
-function restoreSongs(){
-
-let names=JSON.parse(localStorage.getItem("songNames"))
-
-if(!names){
-alert("no saved songs found")
-return
-}
-
-songs=[]
-
-names.forEach(name=>{
-songs.push({name:name,url:null})
-})
-
-document.getElementById("songDisplay").innerText=
-names.length+" songs restored (reupload files to play)"
-
-displaySetlist()
-
-}
-
-/* SHUFFLE */
+/* SHUFFLE SONGS */
 
 function shuffleSongs(){
 
@@ -101,6 +67,7 @@ shuffledSongs[j]=temp
 currentIndex=0
 
 }
+
 
 /* START PRACTICE */
 
@@ -135,6 +102,7 @@ playSong()
 
 }
 
+
 /* PLAY SONG */
 
 function playSong(){
@@ -163,16 +131,16 @@ clearInterval(interval)
 
 countdown.innerText=""
 
-if(song.file){
 audio.src=URL.createObjectURL(song.file)
+
 audio.play()
-}
 
 }
 
 },1000)
 
 }
+
 
 /* NEXT SONG */
 
@@ -190,11 +158,13 @@ playSong()
 
 }
 
+
 /* AUTO NEXT */
 
 audio.addEventListener("ended",()=>{
 nextSong()
 })
+
 
 /* SESSION TIMER */
 
@@ -210,6 +180,7 @@ String(minutes).padStart(2,'0')+
 String(seconds).padStart(2,'0')
 
 }
+
 
 /* SETLIST */
 
@@ -231,7 +202,8 @@ list.appendChild(li)
 
 }
 
-/* SONG PROGRESS */
+
+/* SONG PROGRESS BAR */
 
 audio.addEventListener("timeupdate",()=>{
 
