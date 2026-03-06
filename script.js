@@ -1,114 +1,140 @@
 let songs = [];
-let sessionPlaylist = [];
-let currentSongIndex = 0;
+let shuffledSongs = [];
+let currentIndex = 0;
+let countdownTime = 5;
+let sessionSeconds = 0;
+let sessionInterval;
+let countdownInterval;
 
 const audioPlayer = document.getElementById("audioPlayer");
-const songDisplay = document.getElementById("songDisplay");
-const countdownDisplay = document.getElementById("countdown");
-const sessionTimerDisplay = document.getElementById("sessionTimer");
-const loader = document.getElementById("loader");
-const setlistDiv = document.getElementById("setlist");
-const progressBar = document.getElementById("songProgress");
 
-function loadSongs(){
-  const files = document.getElementById("songUpload").files;
-  if(files.length === 0) return;
+function loadSongs() {
+  const fileInput = document.getElementById("songUpload");
+  const files = Array.from(fileInput.files);
+
+  if (files.length === 0) {
+    alert("Please upload some songs first!");
+    return;
+  }
+
+  songs = files.map(f => ({
+    name: f.name.replace(/\.[^/.]+$/, ""),
+    file: URL.createObjectURL(f),
+    duration: 0
+  }));
+
+  const loader = document.getElementById("loader");
   loader.style.display = "block";
-  songs = [];
-  Array.from(files).forEach(file => {
-    const url = URL.createObjectURL(file);
-    songs.push({name: file.name.replace(/\.[^/.]+$/, ""), url: url, duration: 0});
-  });
+
   let loadedCount = 0;
-  songs.forEach((song, idx) => {
+  songs.forEach((song, index) => {
     const audio = new Audio();
-    audio.src = song.url;
-    audio.addEventListener("loadedmetadata", ()=>{
-      songs[idx].duration = audio.duration;
+    audio.src = song.file;
+    audio.addEventListener("loadedmetadata", () => {
+      song.duration = audio.duration;
       loadedCount++;
-      if(loadedCount === songs.length){
+      if (loadedCount === songs.length) {
         loader.style.display = "none";
-        songDisplay.innerText = "songs loaded: " + songs.length;
+        document.getElementById("songDisplay").innerText = "songs loaded!";
+
+        // populate setlist **only when loading songs**
+        const setlistCheckbox = document.getElementById("showSetlist");
+        if (setlistCheckbox.checked) displaySetlist();
       }
     });
   });
 }
 
-function startPractice(){
-  const timeMinutes = parseInt(document.getElementById("timeSelect").value);
-  sessionPlaylist = shuffleArray(songs);
-  currentSongIndex = 0;
-  startSessionTimer(timeMinutes * 60);
-  playSongWithCountdown();
+function displaySetlist() {
+  const setlistDiv = document.getElementById("setlist");
+  setlistDiv.innerHTML = songs.map((s,i)=>`${i+1}. ${s.name}`).join("<br>");
+  setlistDiv.style.display = "block";
 }
 
-function playSongWithCountdown(){
-  if(currentSongIndex >= sessionPlaylist.length){
-    songDisplay.innerText = "setlist complete";
-    progressBar.style.width = "0%";
+function startPractice() {
+  if (songs.length === 0) {
+    alert("Please load songs first!");
     return;
   }
-  const song = sessionPlaylist[currentSongIndex];
-  songDisplay.innerText = song.name;
 
-  // use selected countdown
-  let countdown = parseInt(document.getElementById("countdownSelect").value);
-  countdownDisplay.innerText = countdown;
+  sessionSeconds = parseInt(document.getElementById("timeSelect").value) * 60;
+  shuffledSongs = songs.slice().sort(() => Math.random() - 0.5);
+  currentIndex = 0;
+  playNextSong();
 
-  const interval = setInterval(()=>{
-    countdown--;
-    countdownDisplay.innerText = countdown;
-    if(countdown === 0){
-      clearInterval(interval);
-      countdownDisplay.innerText = "";
-      audioPlayer.src = song.url;
-      audioPlayer.load();
-      audioPlayer.play();
-    }
-  },1000);
-}
-
-audioPlayer.addEventListener("ended", ()=>{
-  currentSongIndex++;
-  playSongWithCountdown();
-});
-
-audioPlayer.addEventListener("timeupdate", ()=>{
-  const percent = (audioPlayer.currentTime/audioPlayer.duration)*100;
-  progressBar.style.width = percent + "%";
-});
-
-function nextSong(){
-  audioPlayer.pause();
-  currentSongIndex++;
-  playSongWithCountdown();
-}
-
-function startSessionTimer(totalSeconds){
-  clearInterval(window.sessionInterval);
-  window.sessionInterval = setInterval(()=>{
-    totalSeconds--;
-    const mins = Math.floor(totalSeconds/60);
-    const secs = totalSeconds % 60;
-    sessionTimerDisplay.innerText = `session time left: ${mins}:${secs<10? '0'+secs : secs}`;
-    if(totalSeconds <= 0){
-      clearInterval(window.sessionInterval);
-      songDisplay.innerText = "session ended";
+  if (sessionInterval) clearInterval(sessionInterval);
+  sessionInterval = setInterval(() => {
+    if (sessionSeconds > 0) {
+      sessionSeconds--;
+      updateSessionTimer();
+    } else {
+      clearInterval(sessionInterval);
       audioPlayer.pause();
+      document.getElementById("songDisplay").innerText = "session finished!";
     }
-  },1000);
+  }, 1000);
 }
 
-function shuffleArray(array){
-  return array.sort(()=>Math.random()-0.5);
+function updateSessionTimer() {
+  const minutes = Math.floor(sessionSeconds / 60).toString().padStart(2,"0");
+  const seconds = (sessionSeconds % 60).toString().padStart(2,"0");
+  document.getElementById("sessionTimer").innerText = `session time left: ${minutes}:${seconds}`;
 }
 
-// Setlist toggle
-document.getElementById("showSetlist").addEventListener("change", ()=>{
-  if(document.getElementById("showSetlist").checked){
-    setlistDiv.style.display = "block";
-    setlistDiv.innerHTML = sessionPlaylist.map(s=>s.name).join("<br>");
+function playNextSong() {
+  if (currentIndex >= shuffledSongs.length) return;
+
+  const song = shuffledSongs[currentIndex];
+  document.getElementById("songDisplay").innerText = song.name;
+  startCountdown(song);
+}
+
+function startCountdown(song) {
+  clearInterval(countdownInterval);
+  countdownTime = parseInt(document.getElementById("countdownSelect").value);
+  const countdownDisplay = document.getElementById("countdown");
+  countdownDisplay.innerText = countdownTime;
+
+  countdownInterval = setInterval(() => {
+    countdownTime--;
+    if (countdownTime <= 0) {
+      clearInterval(countdownInterval);
+      countdownDisplay.innerText = "";
+      playSong(song);
+    } else {
+      countdownDisplay.innerText = countdownTime;
+    }
+  }, 1000);
+}
+
+function playSong(song) {
+  audioPlayer.src = song.file;
+  audioPlayer.play();
+  updateProgress();
+
+  audioPlayer.onended = () => {
+    currentIndex++;
+    playNextSong();
+  };
+}
+
+function nextSong() {
+  audioPlayer.pause();
+  currentIndex++;
+  if (currentIndex < shuffledSongs.length) {
+    playNextSong();
   } else {
-    setlistDiv.style.display = "none";
+    document.getElementById("songDisplay").innerText = "session finished!";
   }
-});
+}
+
+function updateProgress() {
+  const progressBar = document.getElementById("songProgress");
+  const interval = setInterval(() => {
+    if (audioPlayer.duration) {
+      const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+      progressBar.style.width = `${percent}%`;
+    }
+    if (audioPlayer.ended) clearInterval(interval);
+  }, 200);
+}
