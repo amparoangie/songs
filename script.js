@@ -103,7 +103,27 @@ const j = Math.floor(Math.random() * (i + 1));
 
 sessionPlaylist = shuffled.slice(0, numberOfSongs);
 
+const showSetlist = document.getElementById("showSetlist").checked;
+const setlistDiv = document.getElementById("setlist");
+
+if(showSetlist){
+
+setlistDiv.style.display = "block";
+
+setlistDiv.innerHTML = "<strong>setlist</strong><br><br>";
+
+sessionPlaylist.forEach((song,i)=>{
+
+setlistDiv.innerHTML += (i+1) + ". " + song.name + "<br>";
+
+});
+
+}else{
+
+setlistDiv.style.display = "none";
+
 }
+
 
 
 
