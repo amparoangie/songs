@@ -2,177 +2,59 @@ let songs = [];
 let sessionPlaylist = [];
 let currentSongIndex = 0;
 
-let sessionTimeRemaining = 0;
-let sessionInterval;
+const audioPlayer = document.getElementById("audioPlayer");
+const songDisplay = document.getElementById("songDisplay");
+const countdownDisplay = document.getElementById("countdown");
+const sessionTimerDisplay = document.getElementById("sessionTimer");
+const loader = document.getElementById("loader");
+const setlistDiv = document.getElementById("setlist");
+const progressBar = document.getElementById("songProgress");
 
-let songDisplay;
-let countdownDisplay;
-let audioPlayer;
-let sessionTimerDisplay;
-let progressBar;
-let setlistDiv;
-let showSetlistCheckbox;
-let loader;
-
-window.onload = function() {
-
-  songDisplay = document.getElementById("songDisplay");
-  countdownDisplay = document.getElementById("countdown");
-  audioPlayer = document.getElementById("audioPlayer");
-  sessionTimerDisplay = document.getElementById("sessionTimer");
-  progressBar = document.getElementById("songProgress");
-  setlistDiv = document.getElementById("setlist");
-  showSetlistCheckbox = document.getElementById("showSetlist");
-  loader = document.getElementById("loader");
-
-  // Update progress bar
-  audioPlayer.addEventListener("timeupdate", () => {
-    if(audioPlayer.duration){
-      const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-      progressBar.style.width = percent + "%";
-    }
-  });
-
-  // Click to seek
-  document.getElementById("songProgressContainer").addEventListener("click", (e)=>{
-    if(!audioPlayer.duration) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const width = rect.width;
-    audioPlayer.currentTime = (clickX / width) * audioPlayer.duration;
-  });
-
-  // Auto next song
-  audioPlayer.addEventListener("ended", function(){
-    currentSongIndex++;
-    playSongWithCountdown();
-  });
-
-}
-
-// LOAD SONGS with circular loader
-async function loadSongs() {
-  const fileInput = document.getElementById("songUpload");
-  const files = fileInput.files;
-
-  if(!files || files.length === 0){
-    alert("Please upload songs first.");
-    return;
-  }
-
-  loader.style.display = "block"; // show spinner
+function loadSongs(){
+  const files = document.getElementById("songUpload").files;
+  if(files.length === 0) return;
+  loader.style.display = "block";
   songs = [];
+  Array.from(files).forEach(file => {
+    const url = URL.createObjectURL(file);
+    songs.push({name: file.name.replace(/\.[^/.]+$/, ""), url: url, duration: 0});
+  });
   let loadedCount = 0;
-  const totalFiles = files.length;
-
-  for(let i=0;i<files.length;i++){
-    let file = files[i];
-    let cleanName = file.name.replace(/\.[^/.]+$/, "");
-
-    try {
-      let duration = await getAudioDuration(file);
-      songs.push({ name: cleanName, url: URL.createObjectURL(file), duration: duration });
+  songs.forEach((song, idx) => {
+    const audio = new Audio();
+    audio.src = song.url;
+    audio.addEventListener("loadedmetadata", ()=>{
+      songs[idx].duration = audio.duration;
       loadedCount++;
-      console.log(`Loaded song: ${cleanName} (${loadedCount}/${totalFiles})`);
-    } catch(err){
-      console.error(`Failed to load song: ${file.name}`, err);
-    }
-  }
-
-  loader.style.display = "none"; // hide spinner when done
-  songDisplay.innerText = songs.length > 0 ? songs.length + " songs loaded" : "No valid songs loaded";
-}
-
-// GET AUDIO DURATION
-function getAudioDuration(file){
-  return new Promise((resolve, reject)=>{
-    let audio = document.createElement("audio");
-    audio.src = URL.createObjectURL(file);
-
-    audio.addEventListener("loadedmetadata", function(){
-      resolve(audio.duration);
-    });
-
-    audio.addEventListener("error", function(e){
-      reject(e);
+      if(loadedCount === songs.length){
+        loader.style.display = "none";
+        songDisplay.innerText = "songs loaded: " + songs.length;
+      }
     });
   });
 }
 
-// START PRACTICE
 function startPractice(){
-  if(songs.length === 0){ alert("Load songs first"); return; }
-  buildSessionPlaylist();
+  const timeMinutes = parseInt(document.getElementById("timeSelect").value);
+  sessionPlaylist = shuffleArray(songs);
   currentSongIndex = 0;
-  startSessionTimer();
+  startSessionTimer(timeMinutes * 60);
   playSongWithCountdown();
 }
 
-// BUILD PLAYLIST BASED ON REAL LENGTHS
-function buildSessionPlaylist(){
-  const minutes = document.getElementById("timeSelect").value;
-  const targetSeconds = minutes * 60;
-
-  let shuffled = [...songs];
-  for(let i = shuffled.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-
-  sessionPlaylist = [];
-  let totalTime = 0;
-  for(let song of shuffled){
-    if(totalTime + song.duration <= targetSeconds){
-      sessionPlaylist.push(song);
-      totalTime += song.duration;
-    }
-  }
-
-  // Show setlist if checkbox enabled
-  if(showSetlistCheckbox.checked){
-    setlistDiv.style.display = "block";
-    setlistDiv.innerHTML = "<strong>Setlist</strong><br><br>";
-    sessionPlaylist.forEach((song,i)=>{
-      setlistDiv.innerHTML += (i+1)+". "+song.name+"<br>";
-    });
-  }else{
-    setlistDiv.style.display = "none";
-  }
-}
-
-// SESSION TIMER
-function startSessionTimer(){
-  const minutes = document.getElementById("timeSelect").value;
-  sessionTimeRemaining = minutes * 60;
-
-  clearInterval(sessionInterval);
-  sessionInterval = setInterval(()=>{
-    sessionTimeRemaining--;
-    const mins = Math.floor(sessionTimeRemaining/60);
-    const secs = sessionTimeRemaining%60;
-    sessionTimerDisplay.innerText = "Session Time Left: "+ mins + ":" + secs.toString().padStart(2,'0');
-
-    if(sessionTimeRemaining <= 0){
-      clearInterval(sessionInterval);
-      audioPlayer.pause();
-      songDisplay.innerText = "Practice Finished";
-      countdownDisplay.innerText = "";
-      progressBar.style.width = "0%";
-    }
-  },1000);
-}
-
-// PLAY SONG WITH COUNTDOWN
 function playSongWithCountdown(){
   if(currentSongIndex >= sessionPlaylist.length){
-    songDisplay.innerText = "Setlist Complete";
+    songDisplay.innerText = "setlist complete";
     progressBar.style.width = "0%";
     return;
   }
   const song = sessionPlaylist[currentSongIndex];
   songDisplay.innerText = song.name;
-  let countdown = 5;
+
+  // use selected countdown
+  let countdown = parseInt(document.getElementById("countdownSelect").value);
   countdownDisplay.innerText = countdown;
+
   const interval = setInterval(()=>{
     countdown--;
     countdownDisplay.innerText = countdown;
@@ -186,9 +68,47 @@ function playSongWithCountdown(){
   },1000);
 }
 
-// NEXT SONG BUTTON
+audioPlayer.addEventListener("ended", ()=>{
+  currentSongIndex++;
+  playSongWithCountdown();
+});
+
+audioPlayer.addEventListener("timeupdate", ()=>{
+  const percent = (audioPlayer.currentTime/audioPlayer.duration)*100;
+  progressBar.style.width = percent + "%";
+});
+
 function nextSong(){
   audioPlayer.pause();
   currentSongIndex++;
   playSongWithCountdown();
 }
+
+function startSessionTimer(totalSeconds){
+  clearInterval(window.sessionInterval);
+  window.sessionInterval = setInterval(()=>{
+    totalSeconds--;
+    const mins = Math.floor(totalSeconds/60);
+    const secs = totalSeconds % 60;
+    sessionTimerDisplay.innerText = `session time left: ${mins}:${secs<10? '0'+secs : secs}`;
+    if(totalSeconds <= 0){
+      clearInterval(window.sessionInterval);
+      songDisplay.innerText = "session ended";
+      audioPlayer.pause();
+    }
+  },1000);
+}
+
+function shuffleArray(array){
+  return array.sort(()=>Math.random()-0.5);
+}
+
+// Setlist toggle
+document.getElementById("showSetlist").addEventListener("change", ()=>{
+  if(document.getElementById("showSetlist").checked){
+    setlistDiv.style.display = "block";
+    setlistDiv.innerHTML = sessionPlaylist.map(s=>s.name).join("<br>");
+  } else {
+    setlistDiv.style.display = "none";
+  }
+});
