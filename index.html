@@ -1,1 +1,37 @@
+<!DOCTYPE html>
+<html>
 
+<head>
+<title>Mariachi Gig Practice</title>
+</head>
+
+<body>
+
+<h1>Gig Practice Trainer</h1>
+
+<label>Practice Time</label>
+
+<select id="timeSelect">
+<option value="60">1 Hour</option>
+<option value="120">2 Hours</option>
+<option value="180">3 Hours</option>
+</select>
+
+<br><br>
+
+<input type="file" id="songUpload" multiple accept="audio/*">
+
+<br><br>
+
+<button onclick="loadSongs()">Load Songs</button>
+<button onclick="startPractice()">Start Practice</button>
+
+<h2 id="songDisplay">Upload songs to begin</h2>
+
+<button onclick="nextSong()">Next Song</button>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
