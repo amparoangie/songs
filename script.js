@@ -5,37 +5,58 @@ let currentSongIndex = 0;
 let sessionTimeRemaining = 0;
 let sessionInterval;
 
-const songDisplay = document.getElementById("songDisplay");
-const countdownDisplay = document.getElementById("countdown");
-const audioPlayer = document.getElementById("audioPlayer");
-const sessionTimerDisplay = document.getElementById("sessionTimer");
+let songDisplay;
+let countdownDisplay;
+let audioPlayer;
+let sessionTimerDisplay;
+
+
+// WAIT UNTIL PAGE LOADS
+window.onload = function(){
+
+songDisplay = document.getElementById("songDisplay");
+countdownDisplay = document.getElementById("countdown");
+audioPlayer = document.getElementById("audioPlayer");
+sessionTimerDisplay = document.getElementById("sessionTimer");
+
+audioPlayer.addEventListener("ended", function(){
+
+currentSongIndex++;
+playSongWithCountdown();
+
+});
+
+}
+
 
 
 // LOAD SONGS
 function loadSongs(){
 
-    const files = document.getElementById("songUpload").files;
+const files = document.getElementById("songUpload").files;
 
-    if(files.length === 0){
-        alert("Please upload songs first.");
-        return;
-    }
+if(files.length === 0){
+alert("Please upload songs first.");
+return;
+}
 
-    songs = [];
+songs = [];
 
-    for(let i = 0; i < files.length; i++){
+for(let i=0;i<files.length;i++){
 
-        let cleanName = files[i].name.replace(/\.[^/.]+$/, "");
+let cleanName = files[i].name.replace(/\.[^/.]+$/, "");
 
-        songs.push({
-            name: cleanName,
-            url: URL.createObjectURL(files[i]),
-            file: files[i]
-        });
+songs.push({
 
-    }
+name: cleanName,
+url: URL.createObjectURL(files[i]),
+file: files[i]
 
-    songDisplay.innerText = songs.length + " songs loaded.";
+});
+
+}
+
+songDisplay.innerText = songs.length + " songs loaded";
 
 }
 
@@ -44,43 +65,43 @@ function loadSongs(){
 // START PRACTICE
 function startPractice(){
 
-    if(songs.length === 0){
-        alert("Load songs first.");
-        return;
-    }
+if(songs.length === 0){
+alert("Load songs first");
+return;
+}
 
-    buildSessionPlaylist();
+buildSessionPlaylist();
 
-    currentSongIndex = 0;
+currentSongIndex = 0;
 
-    startSessionTimer();
+startSessionTimer();
 
-    playSongWithCountdown();
+playSongWithCountdown();
 
 }
 
 
 
-// BUILD PLAYLIST BASED ON SESSION LENGTH
+// BUILD RANDOM SESSION PLAYLIST
 function buildSessionPlaylist(){
 
-    const minutes = document.getElementById("timeSelect").value;
+const minutes = document.getElementById("timeSelect").value;
 
-    const averageSongLength = 3; // minutes
+const averageSongLength = 3;
 
-    const numberOfSongs = Math.ceil(minutes / averageSongLength);
+const numberOfSongs = Math.ceil(minutes / averageSongLength);
 
-    let shuffled = [...songs];
+let shuffled = [...songs];
 
-    for(let i = shuffled.length - 1; i > 0; i--){
+for(let i = shuffled.length - 1; i > 0; i--){
 
-        const j = Math.floor(Math.random() * (i + 1));
+const j = Math.floor(Math.random() * (i + 1));
 
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
 
-    }
+}
 
-    sessionPlaylist = shuffled.slice(0, numberOfSongs);
+sessionPlaylist = shuffled.slice(0, numberOfSongs);
 
 }
 
@@ -89,36 +110,36 @@ function buildSessionPlaylist(){
 // SESSION TIMER
 function startSessionTimer(){
 
-    const minutes = document.getElementById("timeSelect").value;
+const minutes = document.getElementById("timeSelect").value;
 
-    sessionTimeRemaining = minutes * 60;
+sessionTimeRemaining = minutes * 60;
 
-    clearInterval(sessionInterval);
+clearInterval(sessionInterval);
 
-    sessionInterval = setInterval(()=>{
+sessionInterval = setInterval(()=>{
 
-        sessionTimeRemaining--;
+sessionTimeRemaining--;
 
-        const mins = Math.floor(sessionTimeRemaining / 60);
-        const secs = sessionTimeRemaining % 60;
+const mins = Math.floor(sessionTimeRemaining/60);
+const secs = sessionTimeRemaining%60;
 
-        sessionTimerDisplay.innerText =
-        "Session Time Left: " +
-        mins + ":" + secs.toString().padStart(2,'0');
+sessionTimerDisplay.innerText =
+"Session Time Left: " +
+mins + ":" + secs.toString().padStart(2,'0');
 
-        if(sessionTimeRemaining <= 0){
+if(sessionTimeRemaining <= 0){
 
-            clearInterval(sessionInterval);
+clearInterval(sessionInterval);
 
-            audioPlayer.pause();
+audioPlayer.pause();
 
-            songDisplay.innerText = "Practice Finished";
+songDisplay.innerText = "Practice Finished";
 
-            countdownDisplay.innerText = "";
+countdownDisplay.innerText = "";
 
-        }
+}
 
-    },1000);
+},1000);
 
 }
 
@@ -127,43 +148,43 @@ function startSessionTimer(){
 // PLAY SONG WITH COUNTDOWN
 function playSongWithCountdown(){
 
-    if(currentSongIndex >= sessionPlaylist.length){
+if(currentSongIndex >= sessionPlaylist.length){
 
-        songDisplay.innerText = "Setlist Complete";
+songDisplay.innerText = "Setlist Complete";
 
-        return;
+return;
 
-    }
+}
 
-    const song = sessionPlaylist[currentSongIndex];
+const song = sessionPlaylist[currentSongIndex];
 
-    songDisplay.innerText = song.name;
+songDisplay.innerText = song.name;
 
-    let countdown = 3;
+let countdown = 3;
 
-    countdownDisplay.innerText = countdown;
+countdownDisplay.innerText = countdown;
 
-    const countdownInterval = setInterval(()=>{
+const interval = setInterval(()=>{
 
-        countdown--;
+countdown--;
 
-        countdownDisplay.innerText = countdown;
+countdownDisplay.innerText = countdown;
 
-        if(countdown === 0){
+if(countdown === 0){
 
-            clearInterval(countdownInterval);
+clearInterval(interval);
 
-            countdownDisplay.innerText = "";
+countdownDisplay.innerText = "";
 
-            audioPlayer.src = song.url;
+audioPlayer.src = song.url;
 
-            audioPlayer.load();
+audioPlayer.load();
 
-            audioPlayer.play();
+audioPlayer.play();
 
-        }
+}
 
-    },1000);
+},1000);
 
 }
 
@@ -172,21 +193,10 @@ function playSongWithCountdown(){
 // MANUAL NEXT SONG
 function nextSong(){
 
-    audioPlayer.pause();
+audioPlayer.pause();
 
-    currentSongIndex++;
+currentSongIndex++;
 
-    playSongWithCountdown();
+playSongWithCountdown();
 
 }
-
-
-
-// AUTO NEXT SONG WHEN AUDIO ENDS
-audioPlayer.addEventListener("ended", function(){
-
-    currentSongIndex++;
-
-    playSongWithCountdown();
-
-});
