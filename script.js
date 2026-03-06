@@ -1,174 +1,192 @@
 let songs = [];
-let practiceSet = [];
-let currentIndex = 0;
-let timeLimit = 0;
+let sessionPlaylist = [];
+let currentSongIndex = 0;
+
+let sessionTimeRemaining = 0;
 let sessionInterval;
+
+const songDisplay = document.getElementById("songDisplay");
+const countdownDisplay = document.getElementById("countdown");
+const audioPlayer = document.getElementById("audioPlayer");
+const sessionTimerDisplay = document.getElementById("sessionTimer");
 
 
 // LOAD SONGS
 function loadSongs(){
 
-const files = document.getElementById("songUpload").files;
+    const files = document.getElementById("songUpload").files;
 
-songs = [];
+    if(files.length === 0){
+        alert("Please upload songs first.");
+        return;
+    }
 
-let loaded = 0;
+    songs = [];
 
-for(let file of files){
+    for(let i = 0; i < files.length; i++){
 
-let audio = new Audio();
-audio.src = URL.createObjectURL(file);
+        let cleanName = files[i].name.replace(/\.[^/.]+$/, "");
 
-audio.addEventListener("loadedmetadata",function(){
+        songs.push({
+            name: cleanName,
+            url: URL.createObjectURL(files[i]),
+            file: files[i]
+        });
 
-songs.push({
-title:file.name,
-duration:Math.ceil(audio.duration/60),
-file:file
-});
+    }
 
-loaded++;
-
-if(loaded === files.length){
-alert(songs.length + " songs loaded!");
-document.getElementById("songDisplay").innerText="Ready to start practice!";
-}
-
-});
+    songDisplay.innerText = songs.length + " songs loaded.";
 
 }
 
-}
-
-
-// SHUFFLE SONGS
-function shuffle(array){
-return array.sort(()=>Math.random()-0.5);
-}
 
 
 // START PRACTICE
 function startPractice(){
 
-if(songs.length === 0){
-alert("Upload songs first");
-return;
-}
+    if(songs.length === 0){
+        alert("Load songs first.");
+        return;
+    }
 
-timeLimit = parseInt(document.getElementById("timeSelect").value);
+    buildSessionPlaylist();
 
-let shuffled = shuffle([...songs]);
+    currentSongIndex = 0;
 
-let totalTime = 0;
+    startSessionTimer();
 
-practiceSet = [];
-
-for(let song of shuffled){
-
-if(totalTime + song.duration <= timeLimit){
-
-practiceSet.push(song);
-totalTime += song.duration;
+    playSongWithCountdown();
 
 }
 
+
+
+// BUILD PLAYLIST BASED ON SESSION LENGTH
+function buildSessionPlaylist(){
+
+    const minutes = document.getElementById("timeSelect").value;
+
+    const averageSongLength = 3; // minutes
+
+    const numberOfSongs = Math.ceil(minutes / averageSongLength);
+
+    let shuffled = [...songs];
+
+    for(let i = shuffled.length - 1; i > 0; i--){
+
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+
+    }
+
+    sessionPlaylist = shuffled.slice(0, numberOfSongs);
+
 }
 
-currentIndex = 0;
-
-startSessionTimer();
-
-nextSong();
-
-}
 
 
 // SESSION TIMER
 function startSessionTimer(){
 
-let remainingSeconds = timeLimit * 60;
+    const minutes = document.getElementById("timeSelect").value;
 
-const timer = document.getElementById("sessionTimer");
+    sessionTimeRemaining = minutes * 60;
 
-sessionInterval = setInterval(()=>{
+    clearInterval(sessionInterval);
 
-let minutes = Math.floor(remainingSeconds/60);
-let seconds = remainingSeconds%60;
+    sessionInterval = setInterval(()=>{
 
-timer.innerText =
-"Session Time Left: " +
-minutes.toString().padStart(2,"0") +
-":" +
-seconds.toString().padStart(2,"0");
+        sessionTimeRemaining--;
 
-remainingSeconds--;
+        const mins = Math.floor(sessionTimeRemaining / 60);
+        const secs = sessionTimeRemaining % 60;
 
-if(remainingSeconds < 0){
+        sessionTimerDisplay.innerText =
+        "Session Time Left: " +
+        mins + ":" + secs.toString().padStart(2,'0');
 
-clearInterval(sessionInterval);
+        if(sessionTimeRemaining <= 0){
 
-timer.innerText="Session Finished!";
+            clearInterval(sessionInterval);
+
+            audioPlayer.pause();
+
+            songDisplay.innerText = "Practice Finished";
+
+            countdownDisplay.innerText = "";
+
+        }
+
+    },1000);
 
 }
 
-},1000);
+
+
+// PLAY SONG WITH COUNTDOWN
+function playSongWithCountdown(){
+
+    if(currentSongIndex >= sessionPlaylist.length){
+
+        songDisplay.innerText = "Setlist Complete";
+
+        return;
+
+    }
+
+    const song = sessionPlaylist[currentSongIndex];
+
+    songDisplay.innerText = song.name;
+
+    let countdown = 3;
+
+    countdownDisplay.innerText = countdown;
+
+    const countdownInterval = setInterval(()=>{
+
+        countdown--;
+
+        countdownDisplay.innerText = countdown;
+
+        if(countdown === 0){
+
+            clearInterval(countdownInterval);
+
+            countdownDisplay.innerText = "";
+
+            audioPlayer.src = song.url;
+
+            audioPlayer.load();
+
+            audioPlayer.play();
+
+        }
+
+    },1000);
 
 }
 
 
-// NEXT SONG
+
+// MANUAL NEXT SONG
 function nextSong(){
 
-if(currentIndex >= practiceSet.length){
+    audioPlayer.pause();
 
-document.getElementById("songDisplay").innerText="Practice Finished!";
+    currentSongIndex++;
 
-document.getElementById("countdown").innerText="";
-
-return;
+    playSongWithCountdown();
 
 }
 
-let song = practiceSet[currentIndex];
 
-document.getElementById("songDisplay").innerText="Next Request: " + song.title;
 
-let countdown = document.getElementById("countdown");
+// AUTO NEXT SONG WHEN AUDIO ENDS
+audioPlayer.addEventListener("ended", function(){
 
-let audioPlayer = document.getElementById("audioPlayer");
+    currentSongIndex++;
 
-let count = 3;
+    playSongWithCountdown();
 
-countdown.innerText = count;
-
-let interval = setInterval(()=>{
-
-count--;
-
-if(count>0){
-
-countdown.innerText = count;
-
-}else{
-
-clearInterval(interval);
-
-countdown.innerText="";
-
-audioPlayer.src = URL.createObjectURL(song.file);
-
-audioPlayer.play().catch(()=>{});
-
-}
-
-},1000);
-
-currentIndex++;
-
-  const audioPlayer = document.getElementById("audioPlayer");
-
-audioPlayer.addEventListener("ended", function() {
-    nextSong();
 });
-  
-}
