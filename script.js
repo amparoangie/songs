@@ -55,7 +55,26 @@ totalTime += song.duration;
 
 currentIndex = 0;
 
-nextSong();
+function nextSong(){
+
+if(currentIndex >= practiceSet.length){
+
+document.getElementById("songDisplay").innerText = "Practice Finished!";
+return;
+
+}
+
+let song = practiceSet[currentIndex];
+
+document.getElementById("songDisplay").innerText = "Next Request: " + song.title;
+
+let audioPlayer = document.getElementById("audioPlayer");
+
+audioPlayer.src = URL.createObjectURL(song.file);
+
+audioPlayer.play();
+
+currentIndex++;
 
 }
 
