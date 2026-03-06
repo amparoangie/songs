@@ -1,171 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-<title>practice</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>amparo</title>
 
 <link rel="icon" href="favicon.ico">
 
 <style>
 
-/* ---------- BASE ---------- */
-
 body{
-font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
-background:#111;
-color:#f5f5f7;
-text-align:center;
-margin:40px;
-transition:.25s;
-}
-
-/* LIGHT MODE */
-
-body.light{
-background:#f5f5f7;
+font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;
+background:#ffffff;
 color:#111;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+height:100vh;
+margin:0;
 }
 
-/* CONTAINER */
+.dark{
+background:#121212;
+color:#eee;
+}
 
 .container{
-max-width:520px;
-margin:auto;
-background:#1c1c1e;
-padding:40px;
-border-radius:16px;
-box-shadow:0 10px 30px rgba(0,0,0,.4);
+text-align:center;
+width:420px;
 }
 
-body.light .container{
-background:white;
+h1{
+font-weight:500;
+margin-bottom:40px;
 }
 
-/* DARK MODE BUTTON */
+.controls{
+display:flex;
+flex-direction:column;
+gap:20px;
+align-items:center;
+}
 
-#darkToggle{
-position:absolute;
-top:20px;
-left:20px;
-font-size:18px;
-padding:6px 10px;
+.row{
+display:flex;
+gap:12px;
+justify-content:center;
+flex-wrap:wrap;
+}
+
+button, select, input[type=file]{
+padding:8px 14px;
 border-radius:8px;
-border:none;
-cursor:pointer;
-background:#2c2c2e;
-color:white;
-}
-
-body.light #darkToggle{
-background:#ddd;
-color:black;
-}
-
-/* GROUP SPACING */
-
-.control-group{
-margin-bottom:24px;
-}
-
-/* INPUTS */
-
-select,input{
-padding:7px 12px;
-border-radius:8px;
-border:1px solid #333;
-background:#2c2c2e;
-color:white;
-margin-top:6px;
-}
-
-body.light select,
-body.light input{
+border:1px solid #ddd;
 background:white;
-color:black;
-border:1px solid #ccc;
+font-size:14px;
 }
 
-/* BUTTONS */
-
-button{
-padding:7px 16px;
-border-radius:10px;
-border:1px solid #3a3a3c;
-background:#2c2c2e;
+.dark button,
+.dark select,
+.dark input[type=file]{
+background:#1e1e1e;
 color:white;
-cursor:pointer;
-margin:4px;
+border:1px solid #444;
 }
 
 button:hover{
-background:#3a3a3c;
+cursor:pointer;
+opacity:.9;
 }
 
-body.light button{
-background:#eee;
-color:black;
-border:1px solid #ccc;
-}
-
-/* START BUTTON */
-
-.startButton{
-background:#ff453a;
-border:none;
+.start{
+background:#e63946;
 color:white;
+border:none;
 }
 
-/* SONG DISPLAY */
-
-#songDisplay{
-font-size:28px;
-margin-top:30px;
+.dark .start{
+background:#e63946;
 }
-
-/* COUNTDOWN */
-
-#countdown{
-font-size:60px;
-color:#ff453a;
-margin-top:14px;
-margin-bottom:28px;
-}
-
-/* SESSION TIMER */
-
-#sessionTimer{
-margin-top:12px;
-margin-bottom:24px;
-}
-
-/* AUDIO PLAYER */
 
 audio{
-margin-top:24px;
-}
-
-/* SONG PROGRESS */
-
-progress{
+margin-top:20px;
 width:100%;
-margin-top:16px;
-accent-color:#ff453a;
 }
 
-/* LOADER */
+.countdown{
+font-size:28px;
+margin-top:10px;
+}
 
-.loader{
-border:4px solid #333;
-border-top:4px solid #ff453a;
-border-radius:50%;
-width:30px;
-height:30px;
-animation:spin 1s linear infinite;
-margin:auto;
-display:none;
+.songtitle{
 margin-top:12px;
+font-size:18px;
+}
+
+.setlist{
+margin-top:20px;
+font-size:14px;
+display:none;
+}
+
+.toggle{
+position:absolute;
+top:18px;
+left:18px;
+font-size:20px;
+cursor:pointer;
+}
+
+.spinner{
+border:3px solid #eee;
+border-top:3px solid #999;
+border-radius:50%;
+width:20px;
+height:20px;
+animation:spin 1s linear infinite;
+display:none;
+margin-left:8px;
 }
 
 @keyframes spin{
@@ -173,87 +126,165 @@ margin-top:12px;
 100%{transform:rotate(360deg);}
 }
 
-/* SETLIST */
-
-#setlist{
-margin-top:20px;
-list-style:none;
-padding:0;
-font-size:14px;
-}
-
-#setlist li{
-padding:4px 0;
-}
-
 </style>
-
 </head>
 
-<body>
+<body class="dark">
 
-<button id="darkToggle">🌙</button>
+<div class="toggle" onclick="toggleDark()">🌙</div>
 
 <div class="container">
 
-<h1>practice</h1>
+<h1>amparo</h1>
 
-<div class="control-group">
-<label>practice time</label><br>
+<div class="controls">
 
-<select id="timeSelect">
-<option value="60">1 hour</option>
-<option value="120">2 hours</option>
-<option value="180">3 hours</option>
-</select>
-</div>
-
-<div class="control-group">
-<label>countdown</label><br>
-
+<div class="row">
 <select id="countdownSelect">
-<option value="3">3 seconds</option>
-<option value="5">5 seconds</option>
-<option value="10">10 seconds</option>
+<option value="3">3 second countdown</option>
+<option value="5">5 second countdown</option>
+<option value="10">10 second countdown</option>
 </select>
 </div>
 
-<div class="control-group">
+<div class="row">
 <input type="file" id="songUpload" multiple accept="audio/*">
+<div id="spinner" class="spinner"></div>
 </div>
 
-<div class="control-group">
-
-<button onclick="loadSongs()">load songs</button>
-
-<button class="startButton" onclick="startPractice()">start practice</button>
-
-<button onclick="nextSong()">next song</button>
-
+<div class="row">
+<button class="start" onclick="startSession()">start session</button>
 </div>
 
+<div class="row">
 <label>
 <input type="checkbox" id="showSetlist">
 show setlist
 </label>
-
-<div id="loader" class="loader"></div>
-
-<h3 id="sessionTimer">session time left: --:--</h3>
-
-<h2 id="songDisplay">upload songs to begin</h2>
-
-<div id="countdown"></div>
-
-<audio id="audioPlayer" controls></audio>
-
-<progress id="songProgress" value="0" max="100"></progress>
-
-<ul id="setlist"></ul>
+</div>
 
 </div>
 
-<script src="script.js"></script>
+<div class="songtitle" id="songTitle"></div>
+<div class="countdown" id="countdown"></div>
+
+<audio id="audioPlayer" controls></audio>
+
+<div class="setlist" id="setlist"></div>
+
+</div>
+
+<script>
+
+let songs=[]
+let remainingSongs=[]
+let sessionStarted=false
+
+const upload=document.getElementById("songUpload")
+const spinner=document.getElementById("spinner")
+
+upload.addEventListener("change",()=>{
+spinner.style.display="inline-block"
+
+setTimeout(()=>{
+songs=[...upload.files]
+remainingSongs=[...songs]
+spinner.style.display="none"
+},500)
+})
+
+function startSession(){
+
+if(songs.length===0){
+alert("upload songs first")
+return
+}
+
+sessionStarted=true
+
+remainingSongs=[...songs]
+
+if(document.getElementById("showSetlist").checked){
+displaySetlist()
+}
+
+nextSong()
+}
+
+function nextSong(){
+
+if(remainingSongs.length===0){
+remainingSongs=[...songs]
+}
+
+const index=Math.floor(Math.random()*remainingSongs.length)
+const song=remainingSongs.splice(index,1)[0]
+
+document.getElementById("songTitle").textContent=song.name
+
+let countdown=parseInt(document.getElementById("countdownSelect").value)
+const countdownEl=document.getElementById("countdown")
+
+countdownEl.textContent=countdown
+
+let timer=setInterval(()=>{
+
+countdown--
+
+if(countdown<=0){
+clearInterval(timer)
+countdownEl.textContent=""
+
+playSong(song)
+}else{
+countdownEl.textContent=countdown
+}
+
+},1000)
+
+}
+
+function playSong(song){
+
+const player=document.getElementById("audioPlayer")
+player.src=URL.createObjectURL(song)
+player.play()
+
+player.onended=()=>{
+nextSong()
+}
+
+}
+
+function displaySetlist(){
+
+const list=document.getElementById("setlist")
+list.style.display="block"
+
+list.innerHTML="<b>setlist</b><br><br>"
+
+songs.forEach(song=>{
+list.innerHTML+=song.name+"<br>"
+})
+
+}
+
+function toggleDark(){
+
+const body=document.body
+const toggle=document.querySelector(".toggle")
+
+body.classList.toggle("dark")
+
+if(body.classList.contains("dark")){
+toggle.textContent="🌙"
+}else{
+toggle.textContent="☀️"
+}
+
+}
+
+</script>
 
 </body>
 </html>
