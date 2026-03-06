@@ -1,205 +1,242 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
+let songs=[]
+let shuffledSongs=[]
+let currentIndex=0
 
-<title>amparo</title>
+let audio=document.getElementById("audioPlayer")
 
-<link rel="icon" href="favicon.ico">
+let sessionSeconds=0
+let sessionInterval
 
-<style>
+/* LOAD SONGS */
 
-/* ---------- APPLE STYLE FONT ---------- */
+function loadSongs(){
 
-body{
-font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
-background:#111;
-color:#f5f5f7;
-text-align:center;
-margin:40px;
+const files=document.getElementById("songUpload").files
+const loader=document.getElementById("loader")
+
+if(files.length===0){
+alert("please upload songs")
+return
 }
 
-/* ---------- MAIN CONTAINER ---------- */
+songs=[]
+loader.style.display="block"
 
-.container{
-max-width:520px;
-margin:auto;
-background:#1c1c1e;
-padding:40px;
-border-radius:16px;
-box-shadow:0 0 20px rgba(0,0,0,.4);
+setTimeout(()=>{
+
+for(let file of files){
+
+songs.push({
+name:file.name.replace(/\.[^/.]+$/,""),
+file:file
+})
+
 }
 
-/* ---------- INPUT GROUP SPACING ---------- */
+loader.style.display="none"
 
-.control-group{
-margin-bottom:22px;
+document.getElementById("songDisplay").innerText=
+songs.length+" songs loaded"
+
+saveSongNames()
+
+if(document.getElementById("showSetlist").checked){
+displaySetlist()
 }
 
-/* ---------- INPUTS ---------- */
+},400)
 
-select,input{
-padding:7px 12px;
-border-radius:8px;
-border:1px solid #333;
-background:#2c2c2e;
-color:white;
-margin-top:6px;
 }
 
-/* ---------- BUTTONS ---------- */
+/* SAVE SONG NAMES */
 
-button{
-padding:6px 16px;
-border-radius:10px;
-border:1px solid #3a3a3c;
-background:#2c2c2e;
-color:white;
-cursor:pointer;
-margin:4px;
-font-size:14px;
+function saveSongNames(){
+
+let names=songs.map(song=>song.name)
+
+localStorage.setItem("songNames",JSON.stringify(names))
+
 }
 
-button:hover{
-background:#3a3a3c;
+/* RESTORE SONG LIST */
+
+function restoreSongs(){
+
+let names=JSON.parse(localStorage.getItem("songNames"))
+
+if(!names){
+alert("no saved songs found")
+return
 }
 
-/* ---------- SONG DISPLAY ---------- */
+songs=[]
 
-#songDisplay{
-font-size:28px;
-margin-top:30px;
+names.forEach(name=>{
+songs.push({name:name,url:null})
+})
+
+document.getElementById("songDisplay").innerText=
+names.length+" songs restored (reupload files to play)"
+
+displaySetlist()
+
 }
 
-#countdown{
-font-size:55px;
-color:#ff453a;
-margin-top:14px;
-margin-bottom:20px;
+/* SHUFFLE */
+
+function shuffleSongs(){
+
+shuffledSongs=[...songs]
+
+for(let i=shuffledSongs.length-1;i>0;i--){
+
+let j=Math.floor(Math.random()*(i+1))
+
+let temp=shuffledSongs[i]
+shuffledSongs[i]=shuffledSongs[j]
+shuffledSongs[j]=temp
+
 }
 
-/* ---------- SESSION TIMER ---------- */
+currentIndex=0
 
-#sessionTimer{
-margin-top:10px;
-margin-bottom:20px;
 }
 
-/* ---------- AUDIO PLAYER ---------- */
+/* START PRACTICE */
 
-audio{
-margin-top:18px;
+function startPractice(){
+
+if(songs.length===0){
+alert("load songs first")
+return
 }
 
-/* ---------- PROGRESS BAR ---------- */
+shuffleSongs()
 
-progress{
-width:100%;
-margin-top:14px;
+let hours=document.getElementById("timeSelect").value
+
+sessionSeconds=hours*60
+
+updateSessionTimer()
+
+sessionInterval=setInterval(()=>{
+
+sessionSeconds--
+
+updateSessionTimer()
+
+if(sessionSeconds<=0){
+clearInterval(sessionInterval)
 }
 
-/* ---------- LOADING SPINNER ---------- */
+},1000)
 
-.loader{
-border:4px solid #333;
-border-top:4px solid white;
-border-radius:50%;
-width:30px;
-height:30px;
-animation:spin 1s linear infinite;
-margin:auto;
-display:none;
-margin-top:12px;
+playSong()
+
 }
 
-@keyframes spin{
-0%{transform:rotate(0deg);}
-100%{transform:rotate(360deg);}
+/* PLAY SONG */
+
+function playSong(){
+
+let song=shuffledSongs[currentIndex]
+
+document.getElementById("songDisplay").innerText=song.name
+
+let countdownTime=parseInt(
+document.getElementById("countdownSelect").value
+)
+
+let countdown=document.getElementById("countdown")
+
+countdown.innerText=countdownTime
+
+let interval=setInterval(()=>{
+
+countdownTime--
+
+countdown.innerText=countdownTime
+
+if(countdownTime===0){
+
+clearInterval(interval)
+
+countdown.innerText=""
+
+if(song.file){
+audio.src=URL.createObjectURL(song.file)
+audio.play()
 }
 
-/* ---------- SETLIST ---------- */
-
-#setlist{
-margin-top:20px;
-list-style:none;
-padding:0;
-font-size:14px;
 }
 
-#setlist li{
-padding:4px 0;
+},1000)
+
 }
 
-</style>
-</head>
+/* NEXT SONG */
 
-<body>
+function nextSong(){
 
-<div class="container">
+currentIndex++
 
-<h1>amparo</h1>
+if(currentIndex>=shuffledSongs.length){
 
-<div class="control-group">
+shuffleSongs()
 
-<label>practice time</label><br>
+}
 
-<select id="timeSelect">
-<option value="60">1 hour</option>
-<option value="120">2 hours</option>
-<option value="180">3 hours</option>
-</select>
+playSong()
 
-</div>
+}
 
-<div class="control-group">
+/* AUTO NEXT */
 
-<label>countdown</label><br>
+audio.addEventListener("ended",()=>{
+nextSong()
+})
 
-<select id="countdownSelect">
-<option value="3">3 seconds</option>
-<option value="5">5 seconds</option>
-<option value="10">10 seconds</option>
-</select>
+/* SESSION TIMER */
 
-</div>
+function updateSessionTimer(){
 
-<div class="control-group">
+let minutes=Math.floor(sessionSeconds/60)
+let seconds=sessionSeconds%60
 
-<input type="file" id="songUpload" multiple accept="audio/*">
+document.getElementById("sessionTimer").innerText=
+"session time left: "+
+String(minutes).padStart(2,'0')+
+":"+
+String(seconds).padStart(2,'0')
 
-</div>
+}
 
-<div class="control-group">
+/* SETLIST */
 
-<button onclick="loadSongs()">load songs</button>
-<button onclick="restoreSongs()">restore songs</button>
-<button onclick="startPractice()">start practice</button>
-<button onclick="nextSong()">next song</button>
+function displaySetlist(){
 
-</div>
+let list=document.getElementById("setlist")
 
-<label>
-<input type="checkbox" id="showSetlist">
-show setlist
-</label>
+list.innerHTML=""
 
-<div id="loader" class="loader"></div>
+songs.forEach(song=>{
 
-<h3 id="sessionTimer">session time left: --:--</h3>
+let li=document.createElement("li")
 
-<h2 id="songDisplay">upload songs to begin</h2>
+li.innerText=song.name
 
-<div id="countdown"></div>
+list.appendChild(li)
 
-<audio id="audioPlayer" controls></audio>
+})
 
-<progress id="songProgress" value="0" max="100"></progress>
+}
 
-<ul id="setlist"></ul>
+/* SONG PROGRESS */
 
-</div>
+audio.addEventListener("timeupdate",()=>{
 
-<script src="script.js"></script>
+let progress=(audio.currentTime/audio.duration)*100
 
-</body>
-</html>
+document.getElementById("songProgress").value=progress
+
+})
