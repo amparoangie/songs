@@ -3,24 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>amparo</title>
+<title>practice</title>
 <link rel="icon" href="favicon.ico">
 <style>
-/* ---------- BODY ---------- */
+/* -------- BODY -------- */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
   background: #121212;
   color: #eee;
   margin: 0;
   padding: 0;
-  transition: background .25s, color .25s;
+  transition: 0.3s;
 }
 body.light {
-  background: #f5f5f7;
+  background: #fafafa;
   color: #111;
 }
 
-/* ---------- CONTAINER ---------- */
+/* -------- CONTAINER -------- */
 .container {
   max-width: 520px;
   margin: 60px auto;
@@ -28,19 +28,37 @@ body.light {
   text-align: center;
   background: #1c1c1e;
   border-radius: 16px;
-  transition: background .25s;
+  transition: 0.3s;
 }
 body.light .container {
   background: white;
 }
 
-/* ---------- HEADINGS ---------- */
+/* -------- DARK MODE TOGGLE -------- */
+#darkToggle {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  font-size: 20px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 8px;
+  background: #2c2c2e;
+  color: white;
+  cursor: pointer;
+}
+body.light #darkToggle {
+  background: #ddd;
+  color: black;
+}
+
+/* -------- HEADINGS -------- */
 h1 {
   margin-bottom: 30px;
   font-weight: 600;
 }
 
-/* ---------- CONTROL ROWS ---------- */
+/* -------- CONTROLS -------- */
 .controls {
   display: flex;
   flex-direction: column;
@@ -56,7 +74,7 @@ h1 {
   align-items: center;
 }
 
-/* ---------- BUTTONS, SELECTS, FILE INPUT ---------- */
+/* -------- INPUTS & BUTTONS -------- */
 button, select, input[type=file] {
   padding: 6px 14px;
   border-radius: 8px;
@@ -64,7 +82,7 @@ button, select, input[type=file] {
   border: 1px solid #333;
   background: #2c2c2e;
   color: white;
-  transition: background .25s, color .25s;
+  transition: 0.25s;
 }
 body.light button,
 body.light select,
@@ -74,35 +92,18 @@ body.light input[type=file] {
   border: 1px solid #ccc;
 }
 button:hover {
-  cursor: pointer;
   opacity: .9;
+  cursor: pointer;
 }
+
+/* -------- START BUTTON -------- */
 button.start {
   background: #ff453a;
   border: none;
   color: white;
 }
 
-/* ---------- DARK MODE TOGGLE ---------- */
-#darkToggle {
-  position: absolute;
-  top: 18px;
-  left: 18px;
-  font-size: 20px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: none;
-  background: #2c2c2e;
-  color: white;
-  cursor: pointer;
-  transition: background .25s, color .25s;
-}
-body.light #darkToggle {
-  background: #ddd;
-  color: black;
-}
-
-/* ---------- TEXT DISPLAYS ---------- */
+/* -------- SONG INFO -------- */
 .songtitle {
   font-size: 18px;
   margin-top: 20px;
@@ -114,7 +115,7 @@ body.light #darkToggle {
   margin-bottom: 20px;
 }
 
-/* ---------- SETLIST ---------- */
+/* -------- SETLIST -------- */
 #setlist {
   display: none;
   margin-top: 20px;
@@ -122,11 +123,9 @@ body.light #darkToggle {
   text-align: left;
   padding-left: 20px;
 }
-#setlist li {
-  padding: 3px 0;
-}
+#setlist li { padding: 3px 0; }
 
-/* ---------- CIRCULAR LOADER ---------- */
+/* -------- SPINNER -------- */
 .spinner {
   border: 3px solid #eee;
   border-top: 3px solid #ff453a;
@@ -143,16 +142,15 @@ body.light #darkToggle {
 }
 </style>
 </head>
+
 <body class="dark">
 
-<!-- Dark Mode Toggle -->
 <button id="darkToggle">🌙</button>
 
 <div class="container">
-  <h1>amparo</h1>
+  <h1>practice</h1>
 
   <div class="controls">
-
     <div class="row">
       <label>Practice Time</label>
       <select id="timeSelect">
@@ -185,13 +183,13 @@ body.light #darkToggle {
     <div class="row">
       <label><input type="checkbox" id="showSetlist"> Show Setlist</label>
     </div>
-
   </div>
 
   <div class="songtitle" id="songTitle">Upload songs to begin</div>
   <div class="countdown" id="countdown"></div>
   <audio id="audioPlayer" controls></audio>
   <ul id="setlist"></ul>
+
 </div>
 
 <script src="script.js"></script>
