@@ -5,16 +5,154 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>amparo</title>
 <link rel="icon" href="favicon.ico">
-<link rel="stylesheet" href="style.css">
+<style>
+/* ---------- BODY ---------- */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: #121212;
+  color: #eee;
+  margin: 0;
+  padding: 0;
+  transition: background .25s, color .25s;
+}
+body.light {
+  background: #f5f5f7;
+  color: #111;
+}
+
+/* ---------- CONTAINER ---------- */
+.container {
+  max-width: 520px;
+  margin: 60px auto;
+  padding: 30px;
+  text-align: center;
+  background: #1c1c1e;
+  border-radius: 16px;
+  transition: background .25s;
+}
+body.light .container {
+  background: white;
+}
+
+/* ---------- HEADINGS ---------- */
+h1 {
+  margin-bottom: 30px;
+  font-weight: 600;
+}
+
+/* ---------- CONTROL ROWS ---------- */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ---------- BUTTONS, SELECTS, FILE INPUT ---------- */
+button, select, input[type=file] {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  border: 1px solid #333;
+  background: #2c2c2e;
+  color: white;
+  transition: background .25s, color .25s;
+}
+body.light button,
+body.light select,
+body.light input[type=file] {
+  background: white;
+  color: black;
+  border: 1px solid #ccc;
+}
+button:hover {
+  cursor: pointer;
+  opacity: .9;
+}
+button.start {
+  background: #ff453a;
+  border: none;
+  color: white;
+}
+
+/* ---------- DARK MODE TOGGLE ---------- */
+#darkToggle {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  font-size: 20px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background: #2c2c2e;
+  color: white;
+  cursor: pointer;
+  transition: background .25s, color .25s;
+}
+body.light #darkToggle {
+  background: #ddd;
+  color: black;
+}
+
+/* ---------- TEXT DISPLAYS ---------- */
+.songtitle {
+  font-size: 18px;
+  margin-top: 20px;
+}
+.countdown {
+  font-size: 50px;
+  color: #ff453a;
+  margin-top: 12px;
+  margin-bottom: 20px;
+}
+
+/* ---------- SETLIST ---------- */
+#setlist {
+  display: none;
+  margin-top: 20px;
+  font-size: 14px;
+  text-align: left;
+  padding-left: 20px;
+}
+#setlist li {
+  padding: 3px 0;
+}
+
+/* ---------- CIRCULAR LOADER ---------- */
+.spinner {
+  border: 3px solid #eee;
+  border-top: 3px solid #ff453a;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+  display: none;
+  margin-left: 6px;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
 </head>
 <body class="dark">
 
+<!-- Dark Mode Toggle -->
 <button id="darkToggle">🌙</button>
 
 <div class="container">
   <h1>amparo</h1>
 
   <div class="controls">
+
     <div class="row">
       <label>Practice Time</label>
       <select id="timeSelect">
@@ -47,6 +185,7 @@
     <div class="row">
       <label><input type="checkbox" id="showSetlist"> Show Setlist</label>
     </div>
+
   </div>
 
   <div class="songtitle" id="songTitle">Upload songs to begin</div>
