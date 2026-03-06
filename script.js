@@ -49,12 +49,12 @@ function shuffleSongs() {
 function startPractice() {
   if (!songs.length) return alert("Load songs first")
 
-  shuffleSongs() // shuffle for this session
+  shuffleSongs()
   countdownLength = parseInt(document.getElementById("countdownSelect").value)
   sessionSeconds = parseInt(document.getElementById("timeSelect").value) * 60
   startSessionTimer()
   renderSetlist()
-  playNext() // start the first song automatically
+  playNext()
 }
 
 // SESSION TIMER
@@ -73,7 +73,7 @@ function startSessionTimer() {
 // PLAY NEXT SONG WITH COUNTDOWN
 function playNext() {
   if (currentIndex >= shuffled.length) {
-    shuffleSongs() // reshuffle when list finishes
+    shuffleSongs()
   }
   const song = shuffled[currentIndex]
   currentIndex++
