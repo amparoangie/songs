@@ -2,7 +2,7 @@ let songs = []
 let shuffled = []
 let currentIndex = 0
 let sessionSeconds = 0
-let sessionInterval = 0
+let sessionInterval = null
 let countdownLength = 3
 
 const audio = document.getElementById("audioPlayer")
@@ -14,7 +14,8 @@ const spinner = document.getElementById("spinner")
 // DARK MODE TOGGLE
 document.getElementById("darkToggle").addEventListener("click", () => {
   document.body.classList.toggle("light")
-  document.getElementById("darkToggle").innerText = document.body.classList.contains("light") ? "☀️" : "🌙"
+  document.getElementById("darkToggle").innerText =
+    document.body.classList.contains("light") ? "☀️" : "🌙"
 })
 
 // LOAD SONGS
@@ -27,7 +28,10 @@ function loadSongs() {
   setTimeout(() => {
     songs = []
     for (let file of files) {
-      songs.push({ name: file.name.replace(/\.[^/.]+$/, ""), url: URL.createObjectURL(file) })
+      songs.push({
+        name: file.name.replace(/\.[^/.]+$/, ""),
+        url: URL.createObjectURL(file)
+      })
     }
     spinner.style.display = "none"
     songTitle.innerText = `${songs.length} songs loaded`
@@ -35,12 +39,12 @@ function loadSongs() {
   }, 300)
 }
 
-// SHUFFLE SONGS
+// SHUFFLE
 function shuffleSongs() {
   shuffled = [...songs]
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
   }
   currentIndex = 0
 }
@@ -48,13 +52,12 @@ function shuffleSongs() {
 // START PRACTICE
 function startPractice() {
   if (!songs.length) return alert("Load songs first")
-
   shuffleSongs()
   countdownLength = parseInt(document.getElementById("countdownSelect").value)
   sessionSeconds = parseInt(document.getElementById("timeSelect").value) * 60
   startSessionTimer()
   renderSetlist()
-  playNext()
+  playNext() // triggers countdown then audio.play()
 }
 
 // SESSION TIMER
@@ -70,31 +73,28 @@ function startSessionTimer() {
   }, 1000)
 }
 
-// PLAY NEXT SONG WITH COUNTDOWN
+// PLAY NEXT
 function playNext() {
-  if (currentIndex >= shuffled.length) {
-    shuffleSongs()
-  }
-  const song = shuffled[currentIndex]
-  currentIndex++
+  if (currentIndex >= shuffled.length) shuffleSongs()
+  const song = shuffled[currentIndex++]
 
   countdownEl.innerText = countdownLength
   let counter = countdownLength
 
-  const countdownInterval = setInterval(() => {
+  const interval = setInterval(() => {
     counter--
     countdownEl.innerText = counter > 0 ? counter : ""
     if (counter <= 0) {
-      clearInterval(countdownInterval)
+      clearInterval(interval)
       audio.src = song.url
-      audio.play()
+      audio.play() // triggered by user gesture Start Practice
     }
   }, 1000)
 
   songTitle.innerText = song.name
 }
 
-// NEXT SONG BUTTON
+// NEXT BUTTON
 function nextSong() {
   audio.pause()
   playNext()
@@ -110,9 +110,7 @@ function renderSetlist() {
       li.innerText = s.name
       setlistEl.appendChild(li)
     })
-  } else {
-    setlistEl.style.display = "none"
-  }
+  } else setlistEl.style.display = "none"
 }
 
 // AUTO NEXT ON SONG END
