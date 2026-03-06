@@ -1,200 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="UTF-8">
 <title>amparo</title>
 
 <style>
 
-/* ---------- DESIGN VARIABLES ---------- */
-
-:root{
---bg:#f5f5f7;
---card:#ffffff;
---text:#1d1d1f;
---secondary:#6e6e73;
---border:#d2d2d7;
---accent:#ff3b30;
-}
-
-body.dark{
---bg:#1c1c1e;
---card:#2c2c2e;
---text:#f5f5f7;
---secondary:#a1a1a6;
---border:#3a3a3c;
---accent:#ff453a;
-}
-
-/* ---------- BODY ---------- */
+/* --------- APPLE SYSTEM FONT --------- */
 
 body{
-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-background:var(--bg);
-color:var(--text);
-margin:0;
-padding:40px 20px;
-display:flex;
-justify-content:center;
-text-transform:lowercase;
-transition:background .3s,color .3s;
-}
-
-/* ---------- MAIN CARD ---------- */
-
-.app{
-width:100%;
-max-width:420px;
-background:var(--card);
-padding:36px;
-border-radius:20px;
-box-shadow:0 10px 30px rgba(0,0,0,.08);
+font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+background:#111;
+color:#f5f5f7;
 text-align:center;
+margin:40px;
 }
 
-/* ---------- TITLE ---------- */
+/* --------- CARD LAYOUT --------- */
 
-h1{
-font-weight:500;
-font-size:26px;
-margin-bottom:30px;
+.container{
+max-width:500px;
+margin:auto;
+background:#1c1c1e;
+padding:30px;
+border-radius:14px;
 }
 
-/* ---------- INPUT SECTIONS ---------- */
+/* --------- INPUTS --------- */
 
-.section{
-margin-bottom:22px;
-}
-
-label{
-display:block;
-font-size:13px;
-color:var(--secondary);
-margin-bottom:6px;
-}
-
-select,
-input[type=file]{
-width:100%;
-padding:8px 10px;
-border-radius:10px;
-border:1px solid var(--border);
-background:transparent;
-font-size:13px;
-font-family:inherit;
-}
-
-/* ---------- BUTTONS ---------- */
-
-.buttons{
-margin-top:12px;
-}
-
-button{
-padding:7px 14px;
-border-radius:12px;
-border:1px solid var(--border);
-background:transparent;
-font-family:inherit;
-font-size:13px;
-cursor:pointer;
-margin:4px;
-transition:.2s;
-}
-
-button:hover{
-transform:translateY(-1px);
-box-shadow:0 2px 6px rgba(0,0,0,.15);
-}
-
-/* ---------- SONG DISPLAY ---------- */
-
-#songDisplay{
-font-size:24px;
-margin-top:25px;
-}
-
-#countdown{
-font-size:64px;
-color:var(--accent);
+select,input{
+padding:6px 10px;
+border-radius:8px;
+border:1px solid #333;
+background:#2c2c2e;
+color:white;
 margin-top:6px;
 }
 
-/* ---------- SESSION TIMER ---------- */
+/* --------- BUTTONS --------- */
+
+button{
+padding:6px 14px;
+border-radius:10px;
+border:1px solid #3a3a3c;
+background:#2c2c2e;
+color:white;
+cursor:pointer;
+margin:4px;
+}
+
+button:hover{
+background:#3a3a3c;
+}
+
+/* --------- SONG DISPLAY --------- */
+
+#songDisplay{
+font-size:28px;
+margin-top:20px;
+}
+
+#countdown{
+font-size:50px;
+color:#ff453a;
+margin-top:10px;
+}
 
 #sessionTimer{
-font-size:14px;
-color:var(--secondary);
 margin-top:10px;
 }
 
-/* ---------- AUDIO ---------- */
-
-audio{
-margin-top:18px;
-width:100%;
-}
-
-/* ---------- PROGRESS BAR ---------- */
-
-#songProgressContainer{
-width:100%;
-height:6px;
-background:var(--border);
-border-radius:3px;
-margin-top:10px;
-overflow:hidden;
-}
-
-#songProgress{
-height:100%;
-width:0%;
-background:var(--accent);
-}
-
-/* ---------- SETLIST ---------- */
-
-#setlist{
-margin-top:20px;
-font-size:13px;
-text-align:left;
-border:1px solid var(--border);
-border-radius:12px;
-padding:10px;
-max-height:180px;
-overflow:auto;
-display:none;
-}
-
-/* ---------- LOADER ---------- */
+/* --------- LOADER --------- */
 
 .loader{
-border:5px solid var(--border);
-border-top:5px solid var(--accent);
+border:4px solid #333;
+border-top:4px solid white;
 border-radius:50%;
-width:32px;
-height:32px;
-margin:18px auto;
+width:30px;
+height:30px;
 animation:spin 1s linear infinite;
+margin:auto;
 display:none;
 }
 
 @keyframes spin{
-0%{transform:rotate(0deg)}
-100%{transform:rotate(360deg)}
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
 }
 
-/* ---------- DARK MODE BUTTON ---------- */
+/* --------- PROGRESS BAR --------- */
 
-#darkToggle{
-position:fixed;
-top:14px;
-left:14px;
-border:none;
-background:transparent;
-font-size:18px;
-cursor:pointer;
+progress{
+width:100%;
+margin-top:10px;
 }
 
 </style>
@@ -202,46 +100,44 @@ cursor:pointer;
 
 <body>
 
-<button id="darkToggle" onclick="toggleDark()">☀️</button>
-
-<div class="app">
+<div class="container">
 
 <h1>amparo</h1>
 
-<div class="section">
 <label>practice time</label>
+<br>
 <select id="timeSelect">
 <option value="60">1 hour</option>
 <option value="120">2 hours</option>
 <option value="180">3 hours</option>
 </select>
-</div>
 
-<div class="section">
+<br><br>
+
 <label>countdown</label>
+<br>
 <select id="countdownSelect">
 <option value="3">3 seconds</option>
-<option value="5" selected>5 seconds</option>
+<option value="5">5 seconds</option>
 <option value="10">10 seconds</option>
 </select>
-</div>
 
-<div class="section">
-<label>upload songs</label>
+<br><br>
+
 <input type="file" id="songUpload" multiple accept="audio/*">
-</div>
 
-<div class="buttons">
+<br><br>
+
 <button onclick="loadSongs()">load songs</button>
 <button onclick="startPractice()">start practice</button>
 <button onclick="nextSong()">next song</button>
-</div>
 
-<div style="margin-top:14px;font-size:13px;color:var(--secondary)">
+<br><br>
+
 <label>
-<input type="checkbox" id="showSetlist"> show setlist
+<input type="checkbox" id="showSetlist">
+show setlist
 </label>
-</div>
 
 <div id="loader" class="loader"></div>
 
@@ -253,32 +149,13 @@ cursor:pointer;
 
 <audio id="audioPlayer" controls></audio>
 
-<div id="songProgressContainer">
-<div id="songProgress"></div>
-</div>
+<progress id="songProgress" value="0" max="100"></progress>
 
-<div id="setlist"></div>
+<ul id="setlist"></ul>
 
 </div>
 
 <script src="script.js"></script>
-
-<script>
-
-function toggleDark(){
-document.body.classList.toggle("dark")
-
-const btn=document.getElementById("darkToggle")
-
-btn.innerText=document.body.classList.contains("dark") ? "☀️":"🌙"
-}
-
-/* start in dark mode */
-
-document.body.classList.add("dark")
-document.getElementById("darkToggle").innerText="☀️"
-
-</script>
 
 </body>
 </html>
