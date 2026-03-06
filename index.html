@@ -1,20 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Gig Practice Trainer</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Gig Practice Trainer</title>
+
+<style>
+
+body{
+font-family: Arial, sans-serif;
+text-align:center;
+margin:40px;
+}
+
+#songDisplay{
+font-size:28px;
+margin-top:20px;
+}
+
+#countdown{
+font-size:60px;
+color:darkred;
+margin-top:10px;
+}
+
+#sessionTimer{
+font-size:22px;
+margin-top:10px;
+}
+
+audio{
+margin-top:20px;
+}
+
+</style>
+
 </head>
 
 <body>
 
 <h1>Gig Practice Trainer</h1>
 
-<input type="file" id="songUpload" multiple accept="audio/*">
-
-<br><br>
-
-<label>Session Length:</label>
+<label>Practice Time</label>
 
 <select id="timeSelect">
 <option value="60">1 Hour</option>
@@ -24,22 +51,26 @@
 
 <br><br>
 
-<button onclick="startSession()">Start Session</button>
+<input type="file" id="songUpload" multiple accept="audio/*">
 
 <br><br>
 
-<h2 id="songTitle">Waiting to start...</h2>
+<button onclick="loadSongs()">Load Songs</button>
+<button onclick="startPractice()">Start Practice</button>
 
-<h3 id="countdown"></h3>
+<h3 id="sessionTimer">Session Time Left: --:--</h3>
 
-<h3>Session Time Left: <span id="sessionTimer">0:00</span></h3>
+<h2 id="songDisplay">Upload songs to begin</h2>
 
-<br>
+<div id="countdown"></div>
 
 <audio id="audioPlayer" controls></audio>
+
+<br><br>
+
+<button onclick="nextSong()">Next Song</button>
 
 <script src="script.js"></script>
 
 </body>
-
 </html>
