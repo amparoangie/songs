@@ -170,9 +170,5 @@ currentIndex++;
 audioPlayer.addEventListener("ended", function() {
     nextSong();
 });
-
-  audioPlayer.src = songs[currentSongIndex].url;
-audioPlayer.load();
-audioPlayer.play();
   
 }
