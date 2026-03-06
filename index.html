@@ -3,292 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>practice</title>
+<title>amparo</title>
 <link rel="icon" href="favicon.ico">
-<style>
-body{
-  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;
-  background:#121212;
-  color:#eee;
-  margin:0;
-  padding:0;
-  transition:.25s;
-}
-body.light{
-  background:#f5f5f7;
-  color:#111;
-}
-.container{
-  max-width:520px;
-  margin:60px auto;
-  padding:30px;
-  text-align:center;
-  background:#1c1c1e;
-  border-radius:16px;
-}
-body.light .container{
-  background:white;
-}
-h1{
-  margin-bottom:30px;
-}
-.controls{
-  display:flex;
-  flex-direction:column;
-  gap:18px;
-  align-items:center;
-  margin-bottom:20px;
-}
-.row{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-  justify-content:center;
-  align-items:center;
-}
-button, select, input[type=file]{
-  padding:6px 14px;
-  border-radius:8px;
-  font-size:14px;
-  border:1px solid #333;
-  background:#2c2c2e;
-  color:white;
-}
-body.light button,
-body.light select,
-body.light input[type=file]{
-  background:white;
-  color:black;
-  border:1px solid #ccc;
-}
-button:hover{
-  cursor:pointer;
-  opacity:.9;
-}
-.start{
-  background:#ff453a;
-  border:none;
-  color:white;
-}
-.songtitle{
-  font-size:18px;
-  margin-top:20px;
-}
-.countdown{
-  font-size:50px;
-  color:#ff453a;
-  margin-top:12px;
-  margin-bottom:20px;
-}
-#setlist{
-  display:none;
-  margin-top:20px;
-  font-size:14px;
-}
-#setlist li{
-  padding:3px 0;
-}
-#darkToggle{
-  position:absolute;
-  top:18px;
-  left:18px;
-  font-size:20px;
-  padding:6px 10px;
-  border-radius:8px;
-  border:none;
-  background:#2c2c2e;
-  color:white;
-  cursor:pointer;
-}
-body.light #darkToggle{
-  background:#ddd;
-  color:black;
-}
-.spinner{
-  border:3px solid #eee;
-  border-top:3px solid #ff453a;
-  border-radius:50%;
-  width:20px;
-  height:20px;
-  animation:spin 1s linear infinite;
-  display:none;
-  margin-left:6px;
-}
-@keyframes spin{
-  0%{transform:rotate(0deg);}
-  100%{transform:rotate(360deg);}
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body class="dark">
 
 <button id="darkToggle">🌙</button>
 
 <div class="container">
-<h1>practice</h1>
+  <h1>amparo</h1>
 
-<div class="controls">
-  <div class="row">
-    <label>practice time</label>
-    <select id="timeSelect">
-      <option value="60">1 hour</option>
-      <option value="120">2 hours</option>
-      <option value="180">3 hours</option>
-    </select>
+  <div class="controls">
+    <div class="row">
+      <label>Practice Time</label>
+      <select id="timeSelect">
+        <option value="60">1 Hour</option>
+        <option value="120">2 Hours</option>
+        <option value="180">3 Hours</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <label>Countdown</label>
+      <select id="countdownSelect">
+        <option value="3">3 sec</option>
+        <option value="5">5 sec</option>
+        <option value="10">10 sec</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <input type="file" id="songUpload" multiple accept="audio/*">
+      <div id="spinner" class="spinner"></div>
+    </div>
+
+    <div class="row">
+      <button onclick="loadSongs()">Load Songs</button>
+      <button class="start" onclick="startPractice()">Start Practice</button>
+      <button onclick="nextSong()">Next Song</button>
+    </div>
+
+    <div class="row">
+      <label><input type="checkbox" id="showSetlist"> Show Setlist</label>
+    </div>
   </div>
 
-  <div class="row">
-    <label>countdown</label>
-    <select id="countdownSelect">
-      <option value="3">3 sec</option>
-      <option value="5">5 sec</option>
-      <option value="10">10 sec</option>
-    </select>
-  </div>
-
-  <div class="row">
-    <input type="file" id="songUpload" multiple accept="audio/*">
-    <div id="spinner" class="spinner"></div>
-  </div>
-
-  <div class="row">
-    <button onclick="loadSongs()">load songs</button>
-    <button class="start" onclick="startPractice()">start practice</button>
-    <button onclick="nextSong()">next song</button>
-  </div>
-
-  <div class="row">
-    <label><input type="checkbox" id="showSetlist"> show setlist</label>
-  </div>
+  <div class="songtitle" id="songTitle">Upload songs to begin</div>
+  <div class="countdown" id="countdown"></div>
+  <audio id="audioPlayer" controls></audio>
+  <ul id="setlist"></ul>
 </div>
 
-<div class="songtitle" id="songTitle">upload songs to begin</div>
-<div class="countdown" id="countdown"></div>
-<audio id="audioPlayer" controls></audio>
-<ul id="setlist"></ul>
-</div>
-
-<script>
-let songs = []
-let shuffled = []
-let currentIndex = 0
-let sessionSeconds = 0
-let sessionInterval = 0
-let countdownLength = 3
-
-const audio = document.getElementById("audioPlayer")
-const songTitle = document.getElementById("songTitle")
-const countdownEl = document.getElementById("countdown")
-const setlistEl = document.getElementById("setlist")
-const spinner = document.getElementById("spinner")
-
-// DARK MODE TOGGLE
-document.getElementById("darkToggle").addEventListener("click", () => {
-  document.body.classList.toggle("light")
-  document.getElementById("darkToggle").innerText = document.body.classList.contains("light") ? "☀️" : "🌙"
-})
-
-// LOAD SONGS
-function loadSongs() {
-  const fileInput = document.getElementById("songUpload")
-  const files = fileInput.files
-  if (!files.length) return alert("select songs first")
-  spinner.style.display = "inline-block"
-
-  setTimeout(() => {
-    songs = []
-    for (let file of files) {
-      songs.push({ name: file.name.replace(/\.[^/.]+$/, ""), url: URL.createObjectURL(file) })
-    }
-    spinner.style.display = "none"
-    songTitle.innerText = `${songs.length} songs loaded`
-    renderSetlist()
-  }, 300)
-}
-
-// SHUFFLE
-function shuffleSongs() {
-  shuffled = [...songs]
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-  }
-  currentIndex = 0
-}
-
-// START PRACTICE
-function startPractice() {
-  if (!songs.length) return alert("load songs first")
-
-  shuffleSongs() // shuffle at session start so order is different each time
-
-  countdownLength = parseInt(document.getElementById("countdownSelect").value)
-  sessionSeconds = parseInt(document.getElementById("timeSelect").value) * 60
-  startSessionTimer()
-  renderSetlist()
-  playNext()
-}
-
-// SESSION TIMER
-function startSessionTimer() {
-  clearInterval(sessionInterval)
-  sessionInterval = setInterval(() => {
-    sessionSeconds--
-    if (sessionSeconds <= 0) {
-      clearInterval(sessionInterval)
-      audio.pause()
-      songTitle.innerText = "session finished"
-    }
-  }, 1000)
-}
-
-// NEXT SONG
-function playNext() {
-  if (currentIndex >= shuffled.length) {
-    shuffleSongs()
-  }
-  const song = shuffled[currentIndex]
-  currentIndex++
-
-  countdownEl.innerText = countdownLength
-  let counter = countdownLength
-
-  const countdownInterval = setInterval(() => {
-    counter--
-    countdownEl.innerText = counter > 0 ? counter : ""
-    if (counter <= 0) {
-      clearInterval(countdownInterval)
-      audio.src = song.url
-      audio.play()
-    }
-  }, 1000)
-
-  songTitle.innerText = song.name
-}
-
-function nextSong() {
-  audio.pause()
-  playNext()
-}
-
-// SETLIST
-function renderSetlist() {
-  if (document.getElementById("showSetlist").checked) {
-    setlistEl.style.display = "block"
-    setlistEl.innerHTML = ""
-    songs.forEach(s => {
-      const li = document.createElement("li")
-      li.innerText = s.name
-      setlistEl.appendChild(li)
-    })
-  } else {
-    setlistEl.style.display = "none"
-  }
-}
-
-// AUTO NEXT ON SONG END
-audio.addEventListener("ended", playNext)
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
