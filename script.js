@@ -1,227 +1,118 @@
-let songs=[]
-let shuffled=[]
-let currentIndex=0
+let songs = []
+let shuffled = []
+let currentIndex = 0
+let sessionSeconds = 0
+let sessionInterval = 0
+let countdownLength = 3
 
-let audio=document.getElementById("audioPlayer")
-let songDisplay=document.getElementById("songDisplay")
-let countdownDisplay=document.getElementById("countdown")
-let sessionTimer=document.getElementById("sessionTimer")
-let progress=document.getElementById("songProgress")
+const audio = document.getElementById("audioPlayer")
+const songTitle = document.getElementById("songTitle")
+const countdownEl = document.getElementById("countdown")
+const setlistEl = document.getElementById("setlist")
+const spinner = document.getElementById("spinner")
 
-let countdownLength=3
-let sessionSeconds=0
-let sessionInterval
-
-/* DARK MODE TOGGLE */
-
-window.addEventListener("DOMContentLoaded",()=>{
-
-let toggle=document.getElementById("darkToggle")
-
-toggle.addEventListener("click",()=>{
-
-document.body.classList.toggle("light")
-
-toggle.innerText=
-document.body.classList.contains("light")
-? "☀️"
-: "🌙"
-
+// DARK MODE TOGGLE
+document.getElementById("darkToggle").addEventListener("click", () => {
+  document.body.classList.toggle("light")
+  document.getElementById("darkToggle").innerText = document.body.classList.contains("light") ? "☀️" : "🌙"
 })
 
-})
+// LOAD SONGS
+function loadSongs() {
+  const fileInput = document.getElementById("songUpload")
+  const files = fileInput.files
+  if (!files.length) return alert("select songs first")
+  spinner.style.display = "inline-block"
 
-/* LOAD SONGS */
-
-function loadSongs(){
-
-let loader=document.getElementById("loader")
-let fileInput=document.getElementById("songUpload")
-let files=fileInput.files
-
-songs=[]
-loader.style.display="block"
-
-setTimeout(()=>{
-
-for(let file of files){
-
-let url=URL.createObjectURL(file)
-
-songs.push({
-name:file.name.replace(/\.[^/.]+$/,""),
-url:url
-})
-
+  setTimeout(() => {
+    songs = []
+    for (let file of files) {
+      songs.push({ name: file.name.replace(/\.[^/.]+$/, ""), url: URL.createObjectURL(file) })
+    }
+    spinner.style.display = "none"
+    songTitle.innerText = `${songs.length} songs loaded`
+    shuffleSongs()
+    renderSetlist()
+  }, 300)
 }
 
-loader.style.display="none"
-
-songDisplay.innerText=songs.length+" songs loaded"
-
-prepareSetlist()
-
-},500)
-
+function shuffleSongs() {
+  shuffled = [...songs]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  currentIndex = 0
 }
 
-/* SHUFFLE */
+// START PRACTICE
+function startPractice() {
+  if (!songs.length) return alert("load songs first")
 
-function shuffle(array){
+  // render setlist based on checkbox at session start
+  renderSetlist()
 
-for(let i=array.length-1;i>0;i--){
-
-let j=Math.floor(Math.random()*(i+1))
-[array[i],array[j]]=[array[j],array[i]]
-
+  countdownLength = parseInt(document.getElementById("countdownSelect").value)
+  sessionSeconds = parseInt(document.getElementById("timeSelect").value) * 60
+  startSessionTimer()
+  playNext()
 }
 
-return array
-
+function startSessionTimer() {
+  clearInterval(sessionInterval)
+  sessionInterval = setInterval(() => {
+    sessionSeconds--
+    if (sessionSeconds <= 0) {
+      clearInterval(sessionInterval)
+      audio.pause()
+      songTitle.innerText = "session finished"
+    }
+  }, 1000)
 }
 
-/* SETLIST */
+// NEXT SONG
+function playNext() {
+  if (currentIndex >= shuffled.length) {
+    shuffleSongs()
+  }
+  const song = shuffled[currentIndex]
+  currentIndex++
 
-function prepareSetlist(){
+  countdownEl.innerText = countdownLength
+  let counter = countdownLength
 
-shuffled=shuffle([...songs])
-currentIndex=0
+  const countdownInterval = setInterval(() => {
+    counter--
+    countdownEl.innerText = counter > 0 ? counter : ""
+    if (counter <= 0) {
+      clearInterval(countdownInterval)
+      audio.src = song.url
+      audio.play()
+    }
+  }, 1000)
 
-let list=document.getElementById("setlist")
-list.innerHTML=""
-
-if(document.getElementById("showSetlist").checked){
-
-shuffled.forEach(song=>{
-let li=document.createElement("li")
-li.innerText=song.name
-list.appendChild(li)
-})
-
+  songTitle.innerText = song.name
 }
 
+function nextSong() {
+  audio.pause()
+  playNext()
 }
 
-/* START SESSION */
-
-function startPractice(){
-
-if(songs.length===0){
-alert("load songs first")
-return
+// SETLIST
+function renderSetlist() {
+  if (document.getElementById("showSetlist").checked) {
+    setlistEl.style.display = "block"
+    setlistEl.innerHTML = ""
+    songs.forEach(s => {
+      const li = document.createElement("li")
+      li.innerText = s.name
+      setlistEl.appendChild(li)
+    })
+  } else {
+    setlistEl.style.display = "none"
+  }
 }
 
-countdownLength=
-parseInt(document.getElementById("countdownSelect").value)
-
-let minutes=
-parseInt(document.getElementById("timeSelect").value)
-
-sessionSeconds=minutes*60
-
-startSessionTimer()
-
-playNext()
-
-}
-
-/* SESSION TIMER */
-
-function startSessionTimer(){
-
-sessionInterval=setInterval(()=>{
-
-sessionSeconds--
-
-let min=Math.floor(sessionSeconds/60)
-let sec=sessionSeconds%60
-
-sessionTimer.innerText=
-"session time left: "+min+":"+String(sec).padStart(2,"0")
-
-if(sessionSeconds<=0){
-
-clearInterval(sessionInterval)
-audio.pause()
-songDisplay.innerText="session finished"
-
-}
-
-},1000)
-
-}
-
-/* NEXT SONG */
-
-function playNext(){
-
-if(currentIndex>=shuffled.length){
-
-shuffled=shuffle([...songs])
-currentIndex=0
-
-}
-
-let song=shuffled[currentIndex]
-
-songDisplay.innerText=song.name
-
-startCountdown(song)
-
-currentIndex++
-
-}
-
-/* COUNTDOWN */
-
-function startCountdown(song){
-
-let time=countdownLength
-
-countdownDisplay.innerText=time
-
-let interval=setInterval(()=>{
-
-time--
-
-if(time<=0){
-
-clearInterval(interval)
-countdownDisplay.innerText=""
-
-audio.src=song.url
-audio.play()
-
-}else{
-
-countdownDisplay.innerText=time
-
-}
-
-},1000)
-
-}
-
-/* AUTO NEXT */
-
-audio.addEventListener("ended",()=>{
-playNext()
-})
-
-/* NEXT BUTTON */
-
-function nextSong(){
-
-audio.pause()
-playNext()
-
-}
-
-/* SONG PROGRESS */
-
-audio.addEventListener("timeupdate",()=>{
-
-let percent=(audio.currentTime/audio.duration)*100
-progress.value=percent
-
-}) 
+// AUTO NEXT ON SONG END
+audio.addEventListener("ended", playNext)
