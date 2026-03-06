@@ -224,4 +224,4 @@ audio.addEventListener("timeupdate",()=>{
 let percent=(audio.currentTime/audio.duration)*100
 progress.value=percent
 
-})
+}) 
