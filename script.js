@@ -21,7 +21,7 @@ document.getElementById("darkToggle").addEventListener("click", () => {
 function loadSongs() {
   const fileInput = document.getElementById("songUpload")
   const files = fileInput.files
-  if (!files.length) return alert("select songs first")
+  if (!files.length) return alert("Select songs first")
   spinner.style.display = "inline-block"
 
   setTimeout(() => {
@@ -31,11 +31,11 @@ function loadSongs() {
     }
     spinner.style.display = "none"
     songTitle.innerText = `${songs.length} songs loaded`
-    shuffleSongs()
     renderSetlist()
   }, 300)
 }
 
+// SHUFFLE SONGS
 function shuffleSongs() {
   shuffled = [...songs]
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -47,17 +47,17 @@ function shuffleSongs() {
 
 // START PRACTICE
 function startPractice() {
-  if (!songs.length) return alert("load songs first")
+  if (!songs.length) return alert("Load songs first")
 
-  // render setlist based on checkbox at session start
-  renderSetlist()
-
+  shuffleSongs() // shuffle for this session
   countdownLength = parseInt(document.getElementById("countdownSelect").value)
   sessionSeconds = parseInt(document.getElementById("timeSelect").value) * 60
   startSessionTimer()
-  playNext()
+  renderSetlist()
+  playNext() // start the first song automatically
 }
 
+// SESSION TIMER
 function startSessionTimer() {
   clearInterval(sessionInterval)
   sessionInterval = setInterval(() => {
@@ -65,15 +65,15 @@ function startSessionTimer() {
     if (sessionSeconds <= 0) {
       clearInterval(sessionInterval)
       audio.pause()
-      songTitle.innerText = "session finished"
+      songTitle.innerText = "Session finished"
     }
   }, 1000)
 }
 
-// NEXT SONG
+// PLAY NEXT SONG WITH COUNTDOWN
 function playNext() {
   if (currentIndex >= shuffled.length) {
-    shuffleSongs()
+    shuffleSongs() // reshuffle when list finishes
   }
   const song = shuffled[currentIndex]
   currentIndex++
@@ -94,12 +94,13 @@ function playNext() {
   songTitle.innerText = song.name
 }
 
+// NEXT SONG BUTTON
 function nextSong() {
   audio.pause()
   playNext()
 }
 
-// SETLIST
+// RENDER SETLIST
 function renderSetlist() {
   if (document.getElementById("showSetlist").checked) {
     setlistEl.style.display = "block"
