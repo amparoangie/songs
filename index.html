@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>Gig Practice Trainer</title>
-<link rel="stylesheet" href="style.css">
+    <title>Gig Practice Trainer</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<h1>Mariachi Gig Trainer</h1>
+<h1>Gig Practice Trainer</h1>
 
 <input type="file" id="songUpload" multiple accept="audio/*">
 
 <br><br>
+
+<label>Session Length:</label>
 
 <select id="timeSelect">
 <option value="60">1 Hour</option>
@@ -19,17 +22,24 @@
 <option value="180">3 Hours</option>
 </select>
 
+<br><br>
+
 <button onclick="startSession()">Start Session</button>
+
+<br><br>
 
 <h2 id="songTitle">Waiting to start...</h2>
 
 <h3 id="countdown"></h3>
 
-<h3>Session Time Left: <span id="sessionTimer"></span></h3>
+<h3>Session Time Left: <span id="sessionTimer">0:00</span></h3>
+
+<br>
 
 <audio id="audioPlayer" controls></audio>
 
 <script src="script.js"></script>
 
 </body>
+
 </html>
